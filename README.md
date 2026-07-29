@@ -2364,6 +2364,7 @@ chore: bootstrap Go module and project skeleton
 chore: add Makefile with build, test, fmt, vet targets
 chore: add .gitignore and .env.example
 ```
+it needs to wire everything: load config → create logger → connect to DB → run migrations → start server.
 
 **Definition of Done:**
 - [ ] `go build -o /dev/null ./cmd/server` produces a binary
