@@ -2367,11 +2367,11 @@ chore: add .gitignore and .env.example
 it needs to wire everything: load config → create logger → connect to DB → run migrations → start server.
 
 **Definition of Done:**
-- [ ] `go build -o /dev/null ./cmd/server` produces a binary
-- [ ] `go vet ./...` is clean
-- [ ] Every package directory has at least one `.go` file
-- [ ] `go.mod` exists with correct module path
-- [ ] Makefile has working `build`, `test`, `fmt`, `vet` targets
+- ✅ `go build -o /dev/null ./cmd/server` produces a binary
+- ✅ `go vet ./...` is clean
+- ✅ Every package directory has at least one `.go` file
+- ✅ `go.mod` exists with correct module path
+- ✅ Makefile has working `build`, `test`, `fmt`, `vet` targets
 
 ---
 
@@ -2380,19 +2380,19 @@ it needs to wire everything: load config → create logger → connect to DB →
 **Goal:** Configuration loading and structured logging — the two cross-cutting foundations every other layer needs.
 
 **Tasks:**
-- [ ] `internal/config/config.go` — `Config` struct with `Load()` function
-- [ ] `internal/logger/logger.go` — `New(env string) *slog.Logger`
-- [ ] Config reads env vars via `os.LookupEnv` with sensible defaults
-- [ ] Logger uses text handler for development, JSON handler for production
-- [ ] Wire config + logger in `main.go`
-- [ ] Verify `go build ./...` succeeds
-- [ ] Verify `go vet ./...` succeeds
+- ✅ `internal/config/config.go` — `Config` struct with `Load()` function
+- ✅ `internal/logger/logger.go` — `New(env string) *slog.Logger`
+- ✅ Config reads env vars via `os.LookupEnv` with sensible defaults
+- ✅ Logger uses text handler for development, JSON handler for production
+- ✅ Wire config + logger in `main.go`
+- ✅ Verify `go build ./...` succeeds
+- ✅ Verify `go vet ./...` succeeds
 
 **Deliverables:**
-- [ ] Config loads from env vars with all fields documented
-- [ ] Logger works in both development and production modes
-- [ ] `main.go` wires config and logger
-- [ ] All config fields have correct types
+- ✅ Config loads from env vars with all fields documented
+- ✅ Logger works in both development and production modes
+- ✅ `main.go` wires config and logger
+- ✅ All config fields have correct types
 
 **Suggested Commit Messages:**
 ```
@@ -2402,10 +2402,10 @@ feat: wire config and logger in main.go
 ```
 
 **Definition of Done:**
-- [ ] Config loads all environment variables with correct types
-- [ ] Logger outputs JSON in production mode, text in development mode
-- [ ] Configuration validation fails early (missing required vars)
-- [ ] No hardcoded configuration values in business logic
+- ✅ Config loads all environment variables with correct types
+- ✅ Logger outputs JSON in production mode, text in development mode
+- ✅ Configuration validation fails early (missing required vars)
+- ✅ No hardcoded configuration values in business logic
 
 ---
 
