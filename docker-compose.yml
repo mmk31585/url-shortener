@@ -1,0 +1,23 @@
+services:
+  db:
+    image: postgres:17
+    container_name: url-shortener-db
+    env_file:
+      - .env
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-urlshortener}
+      POSTGRES_USER: ${POSTGRES_USER:-admin}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-admin}
+      PGPORT: ${POSTGRES_PORT:-5430}
+    networks:
+      - backend
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    ports:
+      - "5430:5432"
+volumes:
+  db-data:
+
+networks:
+  backend:
+    driver: bridge
