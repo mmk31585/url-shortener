@@ -2414,22 +2414,22 @@ feat: wire config and logger in main.go
 **Goal:** Core domain types — `URL` entity, `ShortCode` type, status, and domain errors. Zero external dependencies in this package.
 
 **Tasks:**
-- [ ] `internal/domain/url.go` — `URL` struct, `ShortCode` type, `Status` type with constants
-- [ ] `internal/domain/errors.go` — Sentinel errors (`ErrURLNotFound`, `ErrURLAlreadyDeleted`, etc.)
-- [ ] All fields have correct types and JSON tags
-- [ ] `DeletedAt` is `*time.Time` (pointer for nil check)
-- [ ] No methods on the URL struct (pure data container)
-- [ ] All errors are package-level `var` declarations (comparable with `errors.Is`)
-- [ ] Package imports only `time`, `encoding/json`, and `errors` from stdlib
-- [ ] Verify `go build ./internal/domain/...` succeeds
-- [ ] Verify `go vet ./internal/domain/...` is clean
+- ✅ `internal/domain/url.go` — `URL` struct, `ShortCode` type, `Status` type with constants
+- ✅ `internal/domain/errors.go` — Sentinel errors (`ErrURLNotFound`, `ErrURLAlreadyDeleted`, etc.)
+- ✅ All fields have correct types and JSON tags
+- ✅ `DeletedAt` is `*time.Time` (pointer for nil check)
+- ✅ No methods on the URL struct (pure data container)
+- ✅ All errors are package-level `var` declarations (comparable with `errors.Is`)
+- ✅ Package imports only `time`, `encoding/json`, and `errors` from stdlib
+- ✅ Verify `go build ./internal/domain/...` succeeds
+- ✅ Verify `go vet ./internal/domain/...` is clean
 
 **Deliverables:**
-- [ ] URL entity with all 7 fields defined
-- [ ] ShortCode type defined (typed string)
-- [ ] Status type with constants
-- [ ] Sentinel errors defined and documented
-- [ ] Zero external dependencies in domain package
+- ✅ URL entity with all 7 fields defined
+- ✅ ShortCode type defined (typed string)
+- ✅ Status type with constants
+- ✅ Sentinel errors defined and documented
+- ✅ Zero external dependencies in domain package
 
 **Suggested Commit Messages:**
 ```
@@ -2438,11 +2438,11 @@ feat(domain): add domain sentinel errors
 ```
 
 **Definition of Done:**
-- [ ] All domain types compile and pass tests
-- [ ] Package has zero imports from other project packages
-- [ ] All JSON tags are snake_case
-- [ ] `DeletedAt` is nil by default (not `*time.Time` pointing to zero time)
-- [ ] Coverage > 95%
+- ✅ All domain types compile and pass tests
+- ✅ Package has zero imports from other project packages
+- ✅ All JSON tags are snake_case
+- ✅ `DeletedAt` is nil by default (not `*time.Time` pointing to zero time)
+- ✅ Coverage > 95%
 
 ---
 
@@ -2451,23 +2451,23 @@ feat(domain): add domain sentinel errors
 **Goal:** Database connection, Goose migrations, and storage layer ready.
 
 **Tasks:**
-- [ ] Add Goose (`github.com/pressly/goose/v3`) andpgx (`github.com/jackc/pgx/v5`) dependencies
-- [ ] Create `migrations/` directory
-- [ ] Write `000001_create_urls_table.up.sql` (id, short_code, original_url, redirect_count, created_at, updated_at, deleted_at)
-- [ ] Write `000001_create_urls_table.down.sql` (DROP TABLE)
-- [ ] Write `000002_add_indexes.up.sql` (unique partial index, regular indexes)
-- [ ] Write `000002_add_indexes.down.sql` (DROP INDEX)
-- [ ] `internal/storage/storage.go` — `Storage` struct with `*sql.DB` field
-- [ ] `New(url string) (*Storage, error)`: opens DB, pings, auto-runs Goose `goose.Up`, returns Storage
-- [ ] `(*Storage) DB() *sql.DB` method (gives repository access)
-- [ ] `(*Storage) Close() error` method
-- [ ] Auto-run migrations on startup (or via CLI flag)
+- ✅ Add Goose (`github.com/pressly/goose/v3`) andpgx (`github.com/jackc/pgx/v5`) dependencies
+- ✅ Create `migrations/` directory
+- ✅ Write `000001_create_urls_table.up.sql` (id, short_code, original_url, redirect_count, created_at, updated_at, deleted_at)
+- ✅ Write `000001_create_urls_table.down.sql` (DROP TABLE)
+- ✅ Write `000002_add_indexes.up.sql` (unique partial index, regular indexes)
+- ✅ Write `000002_add_indexes.down.sql` (DROP INDEX)
+- ✅ `internal/storage/storage.go` — `Storage` struct with `*sql.DB` field
+- ✅ `New(url string) (*Storage, error)`: opens DB, pings, auto-runs Goose `goose.Up`, returns Storage
+- ✅ `(*Storage) DB() *sql.DB` method (gives repository access)
+- ✅ `(*Storage) Close() error` method
+- ✅ Auto-run migrations on startup (or via CLI flag)
 
 **Deliverables:**
-- [ ] Goose working with numbered migration files
-- [ ] urls table created with all columns, constraints, indexes
-- [ ] Storage struct provides DB access
-- [ ] Migrations apply automatically on first connection
+- ✅ Goose working with numbered migration files
+- ✅ urls table created with all columns, constraints, indexes
+- ✅ Storage struct provides DB access
+- ✅ Migrations apply automatically on first connection
 
 **Suggested Commit Messages:**
 ```
@@ -2477,11 +2477,11 @@ feat(db): add indexes and partial unique index on short_code
 ```
 
 **Definition of Done:**
-- [ ] All migrations apply cleanly (`goose up`)
-- [ ] All down migrations work (`goose down`)
-- [ ] `New()` connects to PostgreSQL and applies pending migrations
-- [ ] `Storage.DB()` returns a valid `*sql.DB`
-- [ ] `Storage.Close()` closes the connection properly
+- ✅ All migrations apply cleanly (`goose up`)
+- ✅ All down migrations work (`goose down`)
+- ✅ `New()` connects to PostgreSQL and applies pending migrations
+- ✅ `Storage.DB()` returns a valid `*sql.DB`
+- ✅ `Storage.Close()` closes the connection properly
 
 ---
 

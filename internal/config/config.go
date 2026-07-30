@@ -12,11 +12,17 @@ import (
 type Config struct {
 	AppEnv          string
 	ServerAddress   string
-	DatabaseURL     string
+	DB              DBConfig
 	LogLevel        string
 	LogFormat       string
 	ShortcodeLength int
 	MaxURL          int
+}
+type DBConfig struct {
+	DBAddr       string
+	MaxOpenConns int
+	MaxIdleConns int
+	MaxIdleTime  string
 }
 
 func Load() (*Config, error) {
@@ -26,14 +32,18 @@ func Load() (*Config, error) {
 	}
 	appEnv := GetString("APP_ENV", "development")
 	serverAddress := GetString("SERVER_ADDRESS", ":8080")
-	databaseURL := GetString("DATABASE_URL", "")
+	addr := GetString("DB_ADDR", "")
+	maxOpenConns := GetInt("DB_MAX_OPEN_CONNS", 30)
+	maxIdleConns := GetInt("DB_MAX_IDLE_CONNS", 30)
+	maxIdleTime := GetString("DB_MAX_LIFE_TIME", "5m")
+
 	logLevel := GetString("LOG_LEVEL", "info")
 	logFormat := GetString("LOG_FORMAT", "")
 	shortcodeLength := GetInt("SHORTCODE_LENGTH", 8)
-	maxURL := GetInt("MAX_URL", 2048)
+	maxURL := GetInt("MAX_URL_LENGTH", 2048)
 
-	if databaseURL == "" {
-		return nil, fmt.Errorf("config: DATABASE_URL is required")
+	if addr == "" {
+		return nil, fmt.Errorf("config: DB_ADDR is required")
 	}
 	if shortcodeLength < 1 || shortcodeLength > 32 {
 		return nil, fmt.Errorf("config: SHORTCODE_LENGTH must be between 1 and 32, got %d", shortcodeLength)
@@ -48,11 +58,16 @@ func Load() (*Config, error) {
 			logFormat = "text"
 		}
 	}
-
+	dbConfig := &DBConfig{
+		DBAddr:       addr,
+		MaxOpenConns: maxOpenConns,
+		MaxIdleConns: maxIdleConns,
+		MaxIdleTime:  maxIdleTime,
+	}
 	return &Config{
 		AppEnv:          appEnv,
 		ServerAddress:   serverAddress,
-		DatabaseURL:     databaseURL,
+		DB:              *dbConfig,
 		LogLevel:        logLevel,
 		LogFormat:       logFormat,
 		ShortcodeLength: shortcodeLength,
