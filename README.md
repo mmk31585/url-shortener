@@ -2490,21 +2490,21 @@ feat(db): add indexes and partial unique index on short_code
 **Goal:** `URLRepository` interface + PostgreSQL implementation.
 
 **Tasks:**
-- [ ] `internal/repository/repository.go` — Define `URLRepository` interface with 7 methods: `Create`, `GetByShortCode`, `GetAll`, `GetByOriginalURL`, `Update`, `SoftDelete`, `IncrementRedirectCount`
-- [ ] `internal/repository/postgres/url.go` — `PostgresURLRepository` struct implementing `URLRepository`
-- [ ] `NewPostgresURLRepository(db *sql.DB) *PostgresURLRepository` constructor
-- [ ] Implement all 7 methods using parameterized queries
-- [ ] Every query uses `QueryRowContext` or `QueryContext`
-- [ ] Every scan uses proper types
-- [ ] Database errors mapped to domain errors at repository boundary
-- [ ] Partial index on short_code (where deleted_at IS NULL) enables shortcode reuse
+- ✅ `internal/repository/repository.go` — Define `URLRepository` interface with 7 methods: `Create`, `GetByShortCode`, `GetAll`, `GetByOriginalURL`, `Update`, `SoftDelete`, `IncrementRedirectCount`
+- ✅ `internal/repository/postgres/url.go` — `PostgresURLRepository` struct implementing `URLRepository`
+- ✅ `NewPostgresURLRepository(db *sql.DB) *PostgresURLRepository` constructor
+- ✅ Implement all 7 methods using parameterized queries
+- ✅ Every query uses `QueryRowContext` or `QueryContext`
+- ✅ Every scan uses proper types
+- ✅ Database errors mapped to domain errors at repository boundary
+- ✅ Partial index on short_code (where deleted_at IS NULL) enables shortcode reuse
 
 **Deliverables:**
-- [ ] `*PostgresURLRepository` satisfies `URLRepository` (compiler check)
-- [ ] All CRUD operations work correctly
-- [ ] Soft delete excludes deleted URLs from all read operations
-- [ ] Redirect count increments atomically
-- [ ] Unique constraint violation handled gracefully
+- ✅ `*PostgresURLRepository` satisfies `URLRepository` (compiler check)
+- ✅ All CRUD operations work correctly
+- ✅ Soft delete excludes deleted URLs from all read operations
+- ✅ Redirect count increments atomically
+- ✅ Unique constraint violation handled gracefully
 
 **Suggested Commit Messages:**
 ```
@@ -2513,13 +2513,13 @@ feat(repository): add PostgresURLRepository with all CRUD operations
 ```
 
 **Definition of Done:**
-- [ ] All 7 repository methods implemented
-- [ ] All queries use parameterized statements (no SQL injection)
-- [ ] All queries use context-aware methods
-- [ ] Database errors mapped to domain errors before leaving repository
-- [ ] Soft delete correctly handled
-- [ ] All integration tests pass against real PostgreSQL
-- [ ] Coverage > 90%
+- ✅ All 7 repository methods implemented
+- ✅ All queries use parameterized statements (no SQL injection)
+- ✅ All queries use context-aware methods
+- ✅ Database errors mapped to domain errors before leaving repository
+- ✅ Soft delete correctly handled
+- ✅ All integration tests pass against real PostgreSQL
+- ✅ Coverage > 90%
 
 ---
 
