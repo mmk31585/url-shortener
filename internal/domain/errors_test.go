@@ -5,42 +5,6 @@ import (
 	"testing"
 )
 
-func TestErrURLNotFound(t *testing.T) {
-	if !errors.Is(ErrURLNotFound, ErrURLNotFound) {
-		t.Error("ErrURLNotFound should match itself")
-	}
-	if errors.Is(ErrURLNotFound, ErrURLAlreadyDeleted) {
-		t.Error("ErrURLNotFound should not match ErrURLAlreadyDeleted")
-	}
-}
-
-func TestErrURLAlreadyDeleted(t *testing.T) {
-	if !errors.Is(ErrURLAlreadyDeleted, ErrURLAlreadyDeleted) {
-		t.Error("ErrURLAlreadyDeleted should match itself")
-	}
-}
-
-func TestErrShortCodeCollision(t *testing.T) {
-	if !errors.Is(ErrShortCodeCollision, ErrShortCodeCollision) {
-		t.Error("ErrShortCodeCollision should match itself")
-	}
-	if errors.Is(ErrShortCodeCollision, ErrURLNotFound) {
-		t.Error("ErrShortCodeCollision should not match ErrURLNotFound")
-	}
-}
-
-func TestErrInvalidShortCode(t *testing.T) {
-	if !errors.Is(ErrInvalidShortCode, ErrInvalidShortCode) {
-		t.Error("ErrInvalidShortCode should match itself")
-	}
-}
-
-func TestErrInvalidURL(t *testing.T) {
-	if !errors.Is(ErrInvalidURL, ErrInvalidURL) {
-		t.Error("ErrInvalidURL should match itself")
-	}
-}
-
 func TestSentinelErrorsAreDistinct(t *testing.T) {
 	errs := []error{
 		ErrURLNotFound,
