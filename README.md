@@ -2588,26 +2588,26 @@ feat(validator): add URL, shortcode, and ID validation functions
 **Goal:** `URLService` interface + implementation with all business logic.
 
 **Tasks:**
-- [ ] `internal/service/service.go` — Define `URLService` interface (7 methods)
-- [ ] `internal/service/url_service.go` — `urlService` struct implementing all methods
-- [ ] `NewURLService(repo repository.URLRepository, shortener shortener.Shortener, maxURLLength int) *urlService`
-- [ ] Implement `CreateURL`: validate → generate shortcode → persist → return URL
-- [ ] Implement `GetURL`: fetch by shortcode, return or error
-- [ ] Implement `ListURLs`: return all active URLs
-- [ ] Implement `UpdateURL`: validate → find → modify → persist → return URL
-- [ ] Implement `DeleteURL`: find → soft delete
-- [ ] Implement `Redirect`: find → increment count → return original URL
-- [ ] Implement `GetStats`: fetch URL with redirect count
-- [ ] All business rules (BR-01 to BR-10) enforced at service layer
-- [ ] Service has zero HTTP or database imports
+- ✅ `internal/service/service.go` — Define `URLService` interface (7 methods)
+- ✅ `internal/service/url_service.go` — `urlService` struct implementing all methods
+- ✅ `NewURLService(repo repository.URLRepository, shortener shortener.Shortener, maxURLLength int) *urlService`
+- ✅ Implement `CreateURL`: validate → generate shortcode → persist → return URL
+- ✅ Implement `GetURL`: fetch by shortcode, return or error
+- ✅ Implement `ListURLs`: return all active URLs
+- ✅ Implement `UpdateURL`: validate → find → modify → persist → return URL
+- ✅ Implement `DeleteURL`: find → soft delete
+- ✅ Implement `Redirect`: find → increment count → return original URL
+- ✅ Implement `GetStats`: fetch URL with redirect count
+- ✅ All business rules (BR-01 to BR-10) enforced at service layer
+- ✅ Service has zero HTTP or database imports
 
 **Deliverables:**
-- [ ] All 7 use-case methods work correctly with mock repository
-- [ ] All validation delegated to validator package
-- [ ] All shortcode generation delegated to shortener package
-- [ ] All data access delegated to repository interface
-- [ ] Service contains zero business logic leaks into HTTP or DB layers
-- [ ] Coverage > 90%
+- ✅ All 7 use-case methods work correctly with mock repository
+- ✅ All validation delegated to validator package
+- ✅ All shortcode generation delegated to shortener package
+- ✅ All data access delegated to repository interface
+- ✅ Service contains zero business logic leaks into HTTP or DB layers
+- ✅ Coverage > 90%
 
 **Suggested Commit Messages:**
 ```
@@ -2617,10 +2617,10 @@ feat(service): implement UpdateURL, DeleteURL, Redirect, GetStats
 ```
 
 **Definition of Done:**
-- [ ] All 7 service methods work correctly with mock repositories
-- [ ] All error paths tested (not found, gone, validation, etc.)
-- [ ] Business rules BR-01 to BR-10 validated by tests
-- [ ] Coverage > 90% on service package
+- ✅ All 7 service methods work correctly with mock repositories
+- ✅ All error paths tested (not found, gone, validation, etc.)
+- ✅ Business rules BR-01 to BR-10 validated by tests
+- ✅ Coverage > 90% on service package
 
 ---
 
