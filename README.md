@@ -2528,15 +2528,15 @@ feat(repository): add PostgresURLRepository with all CRUD operations
 **Goal:** `Shortener` interface + `RandomShortener` implementation using crypto/rand + base62.
 
 **Tasks:**
-- [ ] `internal/shortener/shortener.go` — Define `Shortener` interface with `Generate() (domain.ShortCode, error)`
-- [ ] `RandomShortener` struct with `length int` (default 8) and `alphabet string` (base62)
-- [ ] Implement `Generate()` using `crypto/rand.Read()` + modulo mapping to alphabet
-- [ ] Validate generated shortcode is exactly 8 chars and valid base62
+- ✅ `internal/shortener/shortener.go` — Define `Shortener` interface with `Generate() (domain.ShortCode, error)`
+- ✅ `RandomShortener` struct with `length int` (default 8) and `alphabet string` (base62)
+- ✅ Implement `Generate()` using `crypto/rand.Read()` + modulo mapping to alphabet
+- ✅ Validate generated shortcode is exactly 8 chars and valid base62
 
 **Deliverables:**
-- [ ] Strategy interface allows swapping algorithms
-- [ ] RandomShortener produces unique 8-char base62 shortcodes
-- [ ] No collisions in 10K+ iterations
+- ✅ Strategy interface allows swapping algorithms
+- ✅ RandomShortener produces unique 8-char base62 shortcodes
+- ✅ No collisions in 10K+ iterations
 
 **Suggested Commit Messages:**
 ```
@@ -2544,10 +2544,10 @@ feat(shortener): add Shortener interface and RandomShortener strategy
 ```
 
 **Definition of Done:**
-- [ ] `Generate()` always returns exactly 8 characters
-- [ ] Generated codes contain only valid base62 characters
-- [ ] No collisions across 10K+ random generations
-- [ ] Coverage 100%
+- ✅ `Generate()` always returns exactly 8 characters
+- ✅ Generated codes contain only valid base62 characters
+- ✅ No collisions across 10K+ random generations
+- ✅ Coverage 100%
 
 ---
 
