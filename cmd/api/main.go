@@ -6,6 +6,7 @@ import (
 
 	"github.com/mmk31585/url-shortener/internal/config"
 	"github.com/mmk31585/url-shortener/internal/logger"
+	"github.com/mmk31585/url-shortener/internal/repository/postgres"
 	"github.com/mmk31585/url-shortener/internal/storage"
 )
 
@@ -25,4 +26,6 @@ func main() {
 		os.Exit(1)
 	}
 	defer store.Close()
+
+	postgres.NewPostgresURLRepository(store.DB())
 }
