@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/mmk31585/url-shortener/internal/domain"
+	"github.com/mmk31585/url-shortener/internal/repository"
 )
 
 type URLRepository struct {
@@ -12,6 +13,8 @@ type URLRepository struct {
 	urls map[int64]*domain.URL
 	seq  int64
 }
+
+var _ repository.URLRepository = (*URLRepository)(nil)
 
 func NewURLRepository() *URLRepository {
 	return &URLRepository{
@@ -33,15 +36,15 @@ func (m *URLRepository) release() {
 	<-m.lock
 }
 
-func (m *URLRepository) Create(ctx context.Context, url *domain.URL) (*domain.URL, error) {
+func (m *URLRepository) Create(ctx context.Context, url *domain.URL) (domain.URL, error) {
 	if err := m.acquire(ctx); err != nil {
-		return nil, err
+		return domain.URL{}, err
 	}
 	defer m.release()
 
 	for _, u := range m.urls {
 		if u.ShortCode == url.ShortCode {
-			return nil, domain.ErrShortCodeCollision
+			return domain.URL{}, domain.ErrShortCodeCollision
 		}
 	}
 
@@ -56,22 +59,21 @@ func (m *URLRepository) Create(ctx context.Context, url *domain.URL) (*domain.UR
 		UpdatedAt:     now,
 	}
 	m.urls[created.ID] = created
-	return created, nil
+	return *created, nil
 }
 
-func (m *URLRepository) GetByShortCode(ctx context.Context, code domain.ShortCode) (*domain.URL, error) {
+func (m *URLRepository) GetByShortCode(ctx context.Context, code domain.ShortCode) (domain.URL, error) {
 	if err := m.acquire(ctx); err != nil {
-		return nil, err
+		return domain.URL{}, err
 	}
 	defer m.release()
 
 	for _, u := range m.urls {
 		if u.ShortCode == code && u.DeletedAt == nil {
-			cp := *u
-			return &cp, nil
+			return *u, nil
 		}
 	}
-	return nil, domain.ErrURLNotFound
+	return domain.URL{}, domain.ErrURLNotFound
 }
 
 func (m *URLRepository) GetAll(ctx context.Context) ([]domain.URL, error) {
@@ -92,24 +94,23 @@ func (m *URLRepository) GetAll(ctx context.Context) ([]domain.URL, error) {
 	return result, nil
 }
 
-func (m *URLRepository) GetByOriginalURL(ctx context.Context, originalURL string) (*domain.URL, error) {
+func (m *URLRepository) GetByOriginalURL(ctx context.Context, originalURL string) (domain.URL, error) {
 	if err := m.acquire(ctx); err != nil {
-		return nil, err
+		return domain.URL{}, err
 	}
 	defer m.release()
 
 	for _, u := range m.urls {
 		if u.OriginalURL == originalURL && u.DeletedAt == nil {
-			cp := *u
-			return &cp, nil
+			return *u, nil
 		}
 	}
-	return nil, domain.ErrURLNotFound
+	return domain.URL{}, domain.ErrURLNotFound
 }
 
-func (m *URLRepository) Update(ctx context.Context, url *domain.URL) (*domain.URL, error) {
+func (m *URLRepository) Update(ctx context.Context, url *domain.URL) (domain.URL, error) {
 	if err := m.acquire(ctx); err != nil {
-		return nil, err
+		return domain.URL{}, err
 	}
 	defer m.release()
 
@@ -117,16 +118,15 @@ func (m *URLRepository) Update(ctx context.Context, url *domain.URL) (*domain.UR
 		if u.ShortCode == url.ShortCode && u.DeletedAt == nil {
 			u.OriginalURL = url.OriginalURL
 			u.UpdatedAt = time.Now().UTC()
-			cp := *u
-			return &cp, nil
+			return *u, nil
 		}
 	}
-	return nil, domain.ErrURLNotFound
+	return domain.URL{}, domain.ErrURLNotFound
 }
 
-func (m *URLRepository) SoftDelete(ctx context.Context, code domain.ShortCode) (*domain.URL, error) {
+func (m *URLRepository) SoftDelete(ctx context.Context, code domain.ShortCode) (domain.URL, error) {
 	if err := m.acquire(ctx); err != nil {
-		return nil, err
+		return domain.URL{}, err
 	}
 	defer m.release()
 
@@ -134,16 +134,15 @@ func (m *URLRepository) SoftDelete(ctx context.Context, code domain.ShortCode) (
 		if u.ShortCode == code && u.DeletedAt == nil {
 			now := time.Now().UTC()
 			u.DeletedAt = &now
-			cp := *u
-			return &cp, nil
+			return *u, nil
 		}
 	}
-	return nil, domain.ErrURLNotFound
+	return domain.URL{}, domain.ErrURLNotFound
 }
 
-func (m *URLRepository) IncrementRedirectCount(ctx context.Context, code domain.ShortCode) (*domain.URL, error) {
+func (m *URLRepository) IncrementRedirectCount(ctx context.Context, code domain.ShortCode) (domain.URL, error) {
 	if err := m.acquire(ctx); err != nil {
-		return nil, err
+		return domain.URL{}, err
 	}
 	defer m.release()
 
@@ -151,9 +150,8 @@ func (m *URLRepository) IncrementRedirectCount(ctx context.Context, code domain.
 		if u.ShortCode == code && u.DeletedAt == nil {
 			u.RedirectCount++
 			u.UpdatedAt = time.Now().UTC()
-			cp := *u
-			return &cp, nil
+			return *u, nil
 		}
 	}
-	return nil, domain.ErrURLNotFound
+	return domain.URL{}, domain.ErrURLNotFound
 }
