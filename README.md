@@ -2556,19 +2556,19 @@ feat(shortener): add Shortener interface and RandomShortener strategy
 **Goal:** Pure validation functions with no side effects.
 
 **Tasks:**
-- [ ] `internal/validator/validator.go` — `ValidateURL(url string) error`
-  - [ ] Empty/whitespace → error
-  - [ ] `url.Parse` fails → error
-  - [ ] Scheme not http/https → error
-  - [ ] Host empty → error
-  - [ ] Length > 2048 → error
-- [ ] `ValidateShortCode(code string) error` — exactly 8 chars, valid base62
-- [ ] `ValidateID(id int64) error` — id > 0
+- ✅ `internal/validator/validator.go` — `ValidateURL(url string) error`
+  - ✅ Empty/whitespace → error
+  - ✅ `url.Parse` fails → error
+  - ✅ Scheme not http/https → error
+  - ✅ Host empty → error
+  - ✅ Length > 2048 → error
+- ✅ `ValidateShortCode(code string) error` — exactly 8 chars, valid base62
+- ✅ `ValidateID(id int64) error` — id > 0
 
 **Deliverables:**
-- [ ] All validation functions are pure (no I/O, no state)
-- [ ] Boundary conditions tested (0, 1, 7, 8, 9, 2047, 2048, 2049)
-- [ ] Coverage 100%
+- ✅ All validation functions are pure (no I/O, no state)
+- ✅ Boundary conditions tested (0, 1, 7, 8, 9, 2047, 2048, 2049)
+- ✅ Coverage 100%
 
 **Suggested Commit Messages:**
 ```
@@ -2576,10 +2576,10 @@ feat(validator): add URL, shortcode, and ID validation functions
 ```
 
 **Definition of Done:**
-- [ ] All validation functions are pure (no side effects)
-- [ ] All boundary conditions tested
-- [ ] Coverage 100%
-- [ ] `gofmt` passes
+- ✅ All validation functions are pure (no side effects)
+- ✅ All boundary conditions tested
+- ✅ Coverage 100%
+- ✅ `gofmt` passes
 
 ---
 
