@@ -30,7 +30,7 @@ func newTestDB(t *testing.T) *sql.DB {
 	defer cancel()
 
 	if err := db.PingContext(ctx); err != nil {
-		t.Fatalf("failed to ping test db: %v", err)
+		t.Skipf("skipping integration tests: postgres not available: %v", err)
 	}
 
 	t.Cleanup(func() { db.Close() })
