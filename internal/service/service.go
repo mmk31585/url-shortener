@@ -13,5 +13,4 @@ type URLService interface {
 	UpdateURL(ctx context.Context, originalUrl string, code domain.ShortCode) (domain.URL, error)
 	DeleteURL(ctx context.Context, code domain.ShortCode) (domain.URL, error)
 	Redirect(ctx context.Context, code domain.ShortCode) (string, error)
-	GetStats(ctx context.Context, code domain.ShortCode) (int64, error)
 }

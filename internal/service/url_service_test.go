@@ -345,12 +345,12 @@ func TestRedirect_IncrementsCount(t *testing.T) {
 		t.Fatalf("second Redirect() failed: %v", err)
 	}
 
-	stats, err := svc.GetStats(context.Background(), created.ShortCode)
+	found, err := svc.GetURL(context.Background(), created.ShortCode)
 	if err != nil {
-		t.Fatalf("GetStats() failed: %v", err)
+		t.Fatalf("GetURL() failed: %v", err)
 	}
-	if stats != 2 {
-		t.Errorf("redirect count: got %d, want 2", stats)
+	if found.RedirectCount != 2 {
+		t.Errorf("redirect count: got %d, want 2", found.RedirectCount)
 	}
 }
 
@@ -358,33 +358,6 @@ func TestRedirect_NotFound(t *testing.T) {
 	svc := NewURLService(mock.NewURLRepository(), newFixedShortener(shortCode1))
 
 	_, err := svc.Redirect(context.Background(), "missing01")
-	if !errors.Is(err, domain.ErrURLNotFound) {
-		t.Errorf("expected ErrURLNotFound, got %v", err)
-	}
-}
-
-func TestGetStats_Valid(t *testing.T) {
-	repo := mock.NewURLRepository()
-	svc := NewURLService(repo, newFixedShortener(shortCode1))
-
-	created, err := svc.CreateURL(context.Background(), validURL)
-	if err != nil {
-		t.Fatalf("CreateURL() failed: %v", err)
-	}
-
-	count, err := svc.GetStats(context.Background(), created.ShortCode)
-	if err != nil {
-		t.Fatalf("GetStats() returned error: %v", err)
-	}
-	if count != 0 {
-		t.Errorf("redirect count: got %d, want 0", count)
-	}
-}
-
-func TestGetStats_NotFound(t *testing.T) {
-	svc := NewURLService(mock.NewURLRepository(), newFixedShortener(shortCode1))
-
-	_, err := svc.GetStats(context.Background(), "missing01")
 	if !errors.Is(err, domain.ErrURLNotFound) {
 		t.Errorf("expected ErrURLNotFound, got %v", err)
 	}

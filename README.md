@@ -2629,23 +2629,23 @@ feat(service): implement UpdateURL, DeleteURL, Redirect, GetStats
 **Goal:** All HTTP endpoints working. Handlers are thin — they parse, delegate, format.
 
 **Tasks:**
-- [ ] `internal/handler/handler.go` — BaseHandler struct with service + logger
-- [ ] `internal/handler/url.go` — All 7 endpoint handlers
-  - [ ] `CreateURL` → POST /api/v1/urls → 201 on success, 400 on validation error
-  - [ ] `GetURL` → GET /api/v1/urls/{shortcode} → 200 or 404
-  - [ ] `Redirect` → GET /r/{shortcode} → 302 with Location header (302, not 301!)
-  - [ ] `UpdateURL` → PUT /api/v1/urls/{shortcode} → 200 on success
-  - [ ] `DeleteURL` → DELETE /api/v1/urls/{shortcode} → 204 on success
-  - [ ] `GetStats` → GET /api/v1/urls/{shortcode}/stats → 200 or 404
-  - [ ] `Health` → GET /health → 200 with DB status
-- [ ] Each handler returns consistent error format `{error: {code, message, request_id}}`
-- [ ] Handlers contain zero business logic, zero SQL, zero net/url calls
+- ✅ `internal/handler/handler.go` — BaseHandler struct with service + logger
+- ✅ `internal/handler/url.go` — All 7 endpoint handlers
+  - ✅ `CreateURL` → POST /api/v1/urls → 201 on success, 400 on validation error
+  - ✅ `GetURL` → GET /api/v1/urls/{shortcode} → 200 or 404
+  - ✅ `Redirect` → GET /r/{shortcode} → 302 with Location header (302, not 301!)
+  - ✅ `UpdateURL` → PUT /api/v1/urls/{shortcode} → 200 on success
+  - ✅ `DeleteURL` → DELETE /api/v1/urls/{shortcode} → 204 on success
+  - ✅ `GetStats` → GET /api/v1/urls/{shortcode}/stats → 200 or 404
+  - ✅ `Health` → GET /health → 200 with DB status
+- ✅ Each handler returns consistent error format `{error: {code, message, request_id}}`
+- ✅ Handlers contain zero business logic, zero SQL, zero net/url calls
 
 **Deliverables:**
-- [ ] All 7 endpoints respond correctly for success and error cases
-- [ ] 302 redirect (not 301)
-- [ ] Error responses are user-friendly with request_id correlation
-- [ ] Handler tests using `httptest` for all endpoints
+- ✅ All 7 endpoints respond correctly for success and error cases
+- ✅ 302 redirect (not 301)
+- ✅ Error responses are user-friendly with request_id correlation
+- ✅ Handler tests using `httptest` for all endpoints
 
 **Suggested Commit Messages:**
 ```
@@ -2653,10 +2653,10 @@ feat(handler): add all HTTP handlers for URL CRUD, redirect, and stats
 ```
 
 **Definition of Done:**
-- [ ] All 7 endpoints work correctly via curl
-- [ ] Handlers contain zero business logic
-- [ ] Error responses follow consistent format
-- [ ] Coverage > 85%
+- ✅ All 7 endpoints work correctly via curl
+- ✅ Handlers contain zero business logic
+- ✅ Error responses follow consistent format
+- ✅ Coverage > 85%
 
 ---
 

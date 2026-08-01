@@ -13,6 +13,7 @@ func TestLoad_AllDefaults(t *testing.T) {
 	os.Setenv("DB_ADDR", "postgres://localhost:5432/test?sslmode=disable")
 	defer os.Clearenv()
 
+	config.ResetForTest()
 	cfg, err := config.Load()
 	if err != nil {
 		t.Fatalf("expected no error with all defaults, got: %v", err)
@@ -56,6 +57,7 @@ func TestLoad_ProductionSetsJsonLogFormat(t *testing.T) {
 	os.Setenv("DB_ADDR", "postgres://localhost:5432/test?sslmode=disable")
 	defer os.Clearenv()
 
+	config.ResetForTest()
 	cfg, err := config.Load()
 	if err != nil {
 		t.Fatalf("expected no error, got: %v", err)
@@ -80,6 +82,7 @@ func TestLoad_CustomValues(t *testing.T) {
 	os.Setenv("MAX_URL_LENGTH", "4096")
 	defer os.Clearenv()
 
+	config.ResetForTest()
 	cfg, err := config.Load()
 	if err != nil {
 		t.Fatalf("expected no error, got: %v", err)
@@ -120,6 +123,7 @@ func TestLoad_CustomValues(t *testing.T) {
 func TestLoad_MissingDBAddrReturnsError(t *testing.T) {
 	os.Clearenv()
 
+	config.ResetForTest()
 	_, err := config.Load()
 	if err == nil {
 		t.Fatal("expected error when DB_ADDR is not set, got nil")
@@ -134,6 +138,7 @@ func TestLoad_EmptyDBAddrReturnsError(t *testing.T) {
 	os.Setenv("DB_ADDR", "")
 	defer os.Unsetenv("DB_ADDR")
 
+	config.ResetForTest()
 	_, err := config.Load()
 	if err == nil {
 		t.Fatal("expected error when DB_ADDR is empty, got nil")
@@ -146,6 +151,7 @@ func TestLoad_InvalidShortcodeLengthTooSmall(t *testing.T) {
 	os.Setenv("SHORTCODE_LENGTH", "0")
 	defer os.Clearenv()
 
+	config.ResetForTest()
 	_, err := config.Load()
 	if err == nil {
 		t.Fatal("expected error when SHORTCODE_LENGTH=0, got nil")
@@ -158,6 +164,7 @@ func TestLoad_InvalidShortcodeLengthTooLarge(t *testing.T) {
 	os.Setenv("SHORTCODE_LENGTH", "33")
 	defer os.Clearenv()
 
+	config.ResetForTest()
 	_, err := config.Load()
 	if err == nil {
 		t.Fatal("expected error when SHORTCODE_LENGTH=33, got nil")
@@ -170,6 +177,7 @@ func TestLoad_InvalidMaxURLZero(t *testing.T) {
 	os.Setenv("MAX_URL_LENGTH", "0")
 	defer os.Clearenv()
 
+	config.ResetForTest()
 	_, err := config.Load()
 	if err == nil {
 		t.Fatal("expected error when MAX_URL_LENGTH=0, got nil")
@@ -182,6 +190,7 @@ func TestLoad_InvalidMaxURLNegative(t *testing.T) {
 	os.Setenv("MAX_URL_LENGTH", "-1")
 	defer os.Clearenv()
 
+	config.ResetForTest()
 	_, err := config.Load()
 	if err == nil {
 		t.Fatal("expected error when MAX_URL_LENGTH=-1, got nil")
@@ -194,6 +203,7 @@ func TestLoad_InvalidShortcodeLengthNonNumericFallsBackToDefault(t *testing.T) {
 	os.Setenv("SHORTCODE_LENGTH", "not-a-number")
 	defer os.Clearenv()
 
+	config.ResetForTest()
 	cfg, err := config.Load()
 	if err != nil {
 		t.Fatalf("expected non-numeric SHORTCODE_LENGTH to fall back to default, got: %v", err)
@@ -209,6 +219,7 @@ func TestLoad_InvalidMaxURLNonNumericFallsBackToDefault(t *testing.T) {
 	os.Setenv("MAX_URL_LENGTH", "not-a-number")
 	defer os.Clearenv()
 
+	config.ResetForTest()
 	cfg, err := config.Load()
 	if err != nil {
 		t.Fatalf("expected non-numeric MAX_URL_LENGTH to fall back to default, got: %v", err)
@@ -225,6 +236,7 @@ func TestLoad_LogFormatOverridesAutoDefault(t *testing.T) {
 	os.Setenv("APP_ENV", "production")
 	defer os.Clearenv()
 
+	config.ResetForTest()
 	cfg, err := config.Load()
 	if err != nil {
 		t.Fatalf("expected no error, got: %v", err)
@@ -240,6 +252,7 @@ func TestLoad_LogFormatDefaultsToJsonInProduction(t *testing.T) {
 	os.Setenv("APP_ENV", "production")
 	defer os.Clearenv()
 
+	config.ResetForTest()
 	cfg, err := config.Load()
 	if err != nil {
 		t.Fatalf("expected no error, got: %v", err)
@@ -255,6 +268,7 @@ func TestLoad_LogFormatDefaultsToTextInDevelopment(t *testing.T) {
 	os.Setenv("APP_ENV", "development")
 	defer os.Clearenv()
 
+	config.ResetForTest()
 	cfg, err := config.Load()
 	if err != nil {
 		t.Fatalf("expected no error, got: %v", err)
@@ -271,6 +285,7 @@ func TestLoad_ProductionLogFormatNotOverriddenByExplicitText(t *testing.T) {
 	os.Setenv("LOG_FORMAT", "text")
 	defer os.Clearenv()
 
+	config.ResetForTest()
 	cfg, err := config.Load()
 	if err != nil {
 		t.Fatalf("expected no error, got: %v", err)
@@ -345,6 +360,7 @@ SHORTCODE_LENGTH=12
 	defer os.Unsetenv("DOTENV_PATH")
 	defer os.Clearenv()
 
+	config.ResetForTest()
 	cfg, err := config.Load()
 	if err != nil {
 		t.Fatalf("expected no error loading .env via Load, got: %v", err)
@@ -383,6 +399,7 @@ APP_ENV=development
 	defer os.Unsetenv("DOTENV_PATH")
 	defer os.Clearenv()
 
+	config.ResetForTest()
 	cfg, err := config.Load()
 	if err != nil {
 		t.Fatalf("expected no error, got: %v", err)
@@ -411,6 +428,7 @@ APP_ENV='development'
 	defer os.Unsetenv("DOTENV_PATH")
 	defer os.Clearenv()
 
+	config.ResetForTest()
 	cfg, err := config.Load()
 	if err != nil {
 		t.Fatalf("expected no error, got: %v", err)
@@ -432,6 +450,7 @@ func TestLoad_DotEnv_MissingFileIsIgnored(t *testing.T) {
 	defer os.Unsetenv("DOTENV_PATH")
 	defer os.Clearenv()
 
+	config.ResetForTest()
 	_, err := config.Load()
 	if err == nil {
 		t.Fatal("expected error because DB_ADDR is required and missing")
@@ -454,6 +473,7 @@ KEY=
 	defer os.Unsetenv("DOTENV_PATH")
 	defer os.Clearenv()
 
+	config.ResetForTest()
 	cfg, err := config.Load()
 	if err != nil {
 		t.Fatalf("expected no error, got: %v", err)

@@ -7,6 +7,13 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"sync"
+)
+
+var (
+	cfg     *Config
+	loadErr error
+	once    sync.Once
 )
 
 type Config struct {
@@ -26,55 +33,71 @@ type DBConfig struct {
 }
 
 func Load() (*Config, error) {
-	err := loadDotEnv()
-	if err != nil {
-		return nil, err
-	}
-	appEnv := GetString("APP_ENV", "development")
-	serverAddress := GetString("SERVER_ADDRESS", ":8080")
-	addr := GetString("DB_ADDR", "")
-	maxOpenConns := GetInt("DB_MAX_OPEN_CONNS", 30)
-	maxIdleConns := GetInt("DB_MAX_IDLE_CONNS", 30)
-	maxIdleTime := GetString("DB_MAX_LIFE_TIME", "5m")
-
-	logLevel := GetString("LOG_LEVEL", "info")
-	logFormat := GetString("LOG_FORMAT", "")
-	shortcodeLength := GetInt("SHORTCODE_LENGTH", 8)
-	maxURL := GetInt("MAX_URL_LENGTH", 2048)
-
-	if addr == "" {
-		return nil, fmt.Errorf("config: DB_ADDR is required")
-	}
-	if shortcodeLength < 1 || shortcodeLength > 32 {
-		return nil, fmt.Errorf("config: SHORTCODE_LENGTH must be between 1 and 32, got %d", shortcodeLength)
-	}
-	if maxURL < 1 {
-		return nil, fmt.Errorf("config: MAX_URL must be positive, got %d", maxURL)
-	}
-	if logFormat == "" {
-		if appEnv == "production" {
-			logFormat = "json"
-		} else {
-			logFormat = "text"
+	once.Do(func() {
+		err := loadDotEnv()
+		if err != nil {
+			loadErr = err
+			return
 		}
-	}
-	dbConfig := &DBConfig{
-		DBAddr:       addr,
-		MaxOpenConns: maxOpenConns,
-		MaxIdleConns: maxIdleConns,
-		MaxIdleTime:  maxIdleTime,
-	}
-	return &Config{
-		AppEnv:          appEnv,
-		ServerAddress:   serverAddress,
-		DB:              *dbConfig,
-		LogLevel:        logLevel,
-		LogFormat:       logFormat,
-		ShortcodeLength: shortcodeLength,
-		MaxURL:          maxURL,
-	}, nil
+		appEnv := GetString("APP_ENV", "development")
+		serverAddress := GetString("SERVER_ADDRESS", ":8080")
+		addr := GetString("DB_ADDR", "")
+		maxOpenConns := GetInt("DB_MAX_OPEN_CONNS", 30)
+		maxIdleConns := GetInt("DB_MAX_IDLE_CONNS", 30)
+		maxIdleTime := GetString("DB_MAX_LIFE_TIME", "5m")
+
+		logLevel := GetString("LOG_LEVEL", "info")
+		logFormat := GetString("LOG_FORMAT", "")
+		shortcodeLength := GetInt("SHORTCODE_LENGTH", 8)
+		maxURL := GetInt("MAX_URL_LENGTH", 2048)
+
+		if addr == "" {
+			loadErr = fmt.Errorf("config: DB_ADDR is required")
+			return
+		}
+		if shortcodeLength < 1 || shortcodeLength > 32 {
+			loadErr = fmt.Errorf("config: SHORTCODE_LENGTH must be between 1 and 32, got %d", shortcodeLength)
+			return
+		}
+		if maxURL < 1 {
+			loadErr = fmt.Errorf("config: MAX_URL must be positive, got %d", maxURL)
+			return
+		}
+		if logFormat == "" {
+			if appEnv == "production" {
+				logFormat = "json"
+			} else {
+				logFormat = "text"
+			}
+		}
+		dbConfig := &DBConfig{
+			DBAddr:       addr,
+			MaxOpenConns: maxOpenConns,
+			MaxIdleConns: maxIdleConns,
+			MaxIdleTime:  maxIdleTime,
+		}
+		cfg = &Config{
+			AppEnv:          appEnv,
+			ServerAddress:   serverAddress,
+			DB:              *dbConfig,
+			LogLevel:        logLevel,
+			LogFormat:       logFormat,
+			ShortcodeLength: shortcodeLength,
+			MaxURL:          maxURL,
+		}
+	})
+
+	return cfg, loadErr
+}
+func GetConfig() *Config {
+	return cfg
 }
 
+func ResetForTest() {
+	once = sync.Once{}
+	cfg = nil
+	loadErr = nil
+}
 func loadDotEnv() error {
 	envPath := GetString("DOTENV_PATH", ".env")
 	if envPath == "" {

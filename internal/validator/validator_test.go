@@ -64,9 +64,9 @@ func TestValidateURL_ValidHTTPS(t *testing.T) {
 
 func TestValidateURL_BoundaryLengths(t *testing.T) {
 	tests := []struct {
-		name     string
-		url      string
-		wantErr  error
+		name    string
+		url     string
+		wantErr error
 	}{
 		{"exactly 2048", "https://e.com/" + strings.Repeat("a", MaxURLLength-14), nil},
 		{"exceeds 2048", "https://e.com/" + strings.Repeat("a", MaxURLLength-13), ErrURLTooLong},
