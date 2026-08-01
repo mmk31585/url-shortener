@@ -32,6 +32,6 @@ func main() {
 
 	repo := postgres.NewPostgresURLRepository(store.DB())
 	shortener := shortener.NewRandomShortener()
-	srv := service.NewURLService(repo, shortener)
-	handler.NewBaseHandler(srv, logger, store.DB())
+	svc := service.NewURLService(repo, shortener)
+	handler.NewBaseHandler(svc, logger, store.DB())
 }
