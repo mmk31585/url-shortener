@@ -81,6 +81,29 @@ func TestValidateURL_BoundaryLengths(t *testing.T) {
 	}
 }
 
+func TestSetMaxURLLength(t *testing.T) {
+	original := maxURLLength
+	defer func() { maxURLLength = original }()
+
+	SetMaxURLLength(100)
+	if maxURLLength != 100 {
+		t.Fatalf("maxURLLength: got %d, want 100", maxURLLength)
+	}
+
+	base := "https://e.com/"
+	if err := ValidateURL(base + strings.Repeat("a", 100-len(base))); err != nil {
+		t.Errorf("URL of length 100 should be valid, got %v", err)
+	}
+	if err := ValidateURL(base + strings.Repeat("a", 101-len(base))); err != ErrURLTooLong {
+		t.Errorf("URL longer than 100 should return ErrURLTooLong, got %v", err)
+	}
+
+	SetMaxURLLength(0)
+	if maxURLLength != 100 {
+		t.Errorf("invalid length must be ignored, got %d", maxURLLength)
+	}
+}
+
 func TestValidateShortCode_InvalidLength(t *testing.T) {
 	tests := []string{"", "a", "abc", "abc123", "abc1234", "abc123456", "abc12345678"}
 	for _, code := range tests {

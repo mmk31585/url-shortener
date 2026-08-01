@@ -8,7 +8,7 @@ services:
       POSTGRES_DB: ${POSTGRES_DB:-urlshortener}
       POSTGRES_USER: ${POSTGRES_USER:-admin}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-admin}
-      PGPORT: ${POSTGRES_PORT:-5430}
+      PGPORT: ${POSTGRES_PORT:-5432}
     networks:
       - backend
     volumes:

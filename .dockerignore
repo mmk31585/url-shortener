@@ -1,0 +1,50 @@
+# Build artifacts
+bin/
+*.exe
+*.test
+
+# Test files
+*_test.go
+
+# Documentation
+
+*.md
+!README.md
+
+# IDE/Editor
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Git
+.git/
+.gitignore
+
+# Docker
+Dockerfile*
+docker-compose*.yml
+.dockerignore
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Go
+vendor/
+go.work
+
+# CI/CD
+.github/
+
+# Coverage
+coverage.out
+coverage.html
+
+# OS
+.DS_Store
+Thumbs.db
+
+# tmp
+tmp/
