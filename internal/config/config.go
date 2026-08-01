@@ -93,8 +93,6 @@ func GetConfig() *Config {
 	return cfg
 }
 
-// ResetForTest clears the cached config so that Load() re-reads the
-// environment. It must only be called from tests.
 func ResetForTest() {
 	once = sync.Once{}
 	cfg = nil
