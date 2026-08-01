@@ -513,5 +513,3 @@ func TestPostgresURLRepository_IncrementRedirectCount_ExcludesDeleted(t *testing
 		t.Errorf("expected ErrURLNotFound for deleted URL, got %v", err)
 	}
 }
-
-

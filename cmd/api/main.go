@@ -5,8 +5,11 @@ import (
 	"os"
 
 	"github.com/mmk31585/url-shortener/internal/config"
+	"github.com/mmk31585/url-shortener/internal/handler"
 	"github.com/mmk31585/url-shortener/internal/logger"
 	"github.com/mmk31585/url-shortener/internal/repository/postgres"
+	"github.com/mmk31585/url-shortener/internal/service"
+	"github.com/mmk31585/url-shortener/internal/shortener"
 	"github.com/mmk31585/url-shortener/internal/storage"
 )
 
@@ -27,5 +30,8 @@ func main() {
 	}
 	defer store.Close()
 
-	postgres.NewPostgresURLRepository(store.DB())
+	repo := postgres.NewPostgresURLRepository(store.DB())
+	shortener := shortener.NewRandomShortener()
+	srv := service.NewURLService(repo, shortener)
+	handler.NewBaseHandler(srv, logger, store.DB())
 }

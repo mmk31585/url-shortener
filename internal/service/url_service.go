@@ -94,10 +94,3 @@ func (s *urlService) Redirect(ctx context.Context, code domain.ShortCode) (strin
 	}
 	return updated.OriginalURL, nil
 }
-func (s *urlService) GetStats(ctx context.Context, code domain.ShortCode) (int64, error) {
-	finded, err := s.findURL(ctx, code)
-	if err != nil {
-		return 0, err
-	}
-	return finded.RedirectCount, nil
-}

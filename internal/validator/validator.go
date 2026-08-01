@@ -7,21 +7,21 @@ import (
 )
 
 var (
-	ErrEmptyURL          = errors.New("url is empty")
-	ErrInvalidURL        = errors.New("invalid url")
-	ErrInvalidURLScheme  = errors.New("url scheme must be http or https")
-	ErrInvalidURLHost    = errors.New("url must have a non-empty host")
-	ErrURLTooLong        = errors.New("url exceeds maximum length of 2048 characters")
-	ErrInvalidShortCode  = errors.New("invalid shortcode")
-	ErrInvalidShortCodeLen = errors.New("shortcode must be exactly 8 characters")
+	ErrEmptyURL              = errors.New("url is empty")
+	ErrInvalidURL            = errors.New("invalid url")
+	ErrInvalidURLScheme      = errors.New("url scheme must be http or https")
+	ErrInvalidURLHost        = errors.New("url must have a non-empty host")
+	ErrURLTooLong            = errors.New("url exceeds maximum length of 2048 characters")
+	ErrInvalidShortCode      = errors.New("invalid shortcode")
+	ErrInvalidShortCodeLen   = errors.New("shortcode must be exactly 8 characters")
 	ErrInvalidShortCodeChars = errors.New("shortcode must contain only base62 characters (a-z, A-Z, 0-9)")
-	ErrInvalidID         = errors.New("id must be positive")
+	ErrInvalidID             = errors.New("id must be positive")
 )
 
 const (
-	MaxURLLength      = 2048
-	ShortCodeLength   = 8
-	Base62Alphabet    = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+	MaxURLLength    = 2048
+	ShortCodeLength = 8
+	Base62Alphabet  = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 )
 
 func ValidateURL(rawURL string) error {
