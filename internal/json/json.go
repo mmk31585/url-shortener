@@ -42,8 +42,8 @@ func ReadJSON(w http.ResponseWriter, r *http.Request, data any) error {
 		switch {
 		case errors.Is(err, io.EOF):
 			return ErrEmptyBody
-		case errors.As(err, &typeErr) && typeErr.Value == "unknown field":
-			return fmt.Errorf("%w: %q", ErrUnknownField, typeErr.Field)
+		case strings.Contains(err.Error(), "unknown field"):
+			return fmt.Errorf("%w: %v", ErrUnknownField, err)
 		case errors.As(err, &typeErr):
 			return fmt.Errorf("%w: field %q must be %s", ErrMalformedJSON, typeErr.Field, typeErr.Type)
 		case errors.As(err, &syntaxErr):

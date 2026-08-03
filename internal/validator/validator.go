@@ -11,7 +11,7 @@ var (
 	ErrInvalidURL            = errors.New("invalid url")
 	ErrInvalidURLScheme      = errors.New("url scheme must be http or https")
 	ErrInvalidURLHost        = errors.New("url must have a non-empty host")
-	ErrURLTooLong            = errors.New("url exceeds maximum length of 2048 characters")
+	ErrURLTooLong            = errors.New("url exceeds the maximum allowed length")
 	ErrInvalidShortCode      = errors.New("invalid shortcode")
 	ErrInvalidShortCodeLen   = errors.New("shortcode must be exactly 8 characters")
 	ErrInvalidShortCodeChars = errors.New("shortcode must contain only base62 characters (a-z, A-Z, 0-9)")
@@ -24,13 +24,24 @@ const (
 	Base62Alphabet  = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 )
 
+var maxURLLength = MaxURLLength
+
+// SetMaxURLLength overrides the default URL length limit. Invalid values are ignored.
+// It is meant to be called once at application startup from configuration.
+func SetMaxURLLength(length int) {
+	if length < 1 {
+		return
+	}
+	maxURLLength = length
+}
+
 func ValidateURL(rawURL string) error {
 	trimmed := strings.TrimSpace(rawURL)
 	if trimmed == "" {
 		return ErrEmptyURL
 	}
 
-	if len(rawURL) > MaxURLLength {
+	if len(rawURL) > maxURLLength {
 		return ErrURLTooLong
 	}
 

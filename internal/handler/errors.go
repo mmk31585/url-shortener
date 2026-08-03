@@ -3,6 +3,7 @@ package handler
 import (
 	"context"
 	"errors"
+	"log/slog"
 	"net/http"
 
 	playground "github.com/go-playground/validator/v10"
@@ -16,7 +17,11 @@ type contextKey string
 
 const requestIDKey contextKey = "request_id"
 
-func requestIDFromContext(ctx context.Context) string {
+func WithRequestID(ctx context.Context, requestID string) context.Context {
+	return context.WithValue(ctx, requestIDKey, requestID)
+}
+
+func RequestIDFromContext(ctx context.Context) string {
 	requestID, _ := ctx.Value(requestIDKey).(string)
 	return requestID
 }
@@ -48,9 +53,10 @@ func mapAppError(err error) *errs.AppError {
 		return errs.NewValidationError(err.Error())
 	case errors.Is(err, validator.ErrURLTooLong):
 		return errs.NewUnprocessableError(err.Error())
-	case errors.Is(err, domain.ErrURLNotFound),
-		errors.Is(err, domain.ErrURLAlreadyDeleted):
+	case errors.Is(err, domain.ErrURLNotFound):
 		return errs.NewNotFoundError("url not found")
+	case errors.Is(err, domain.ErrURLAlreadyDeleted):
+		return errs.NewGoneError("url has been deleted")
 	case errors.Is(err, domain.ErrShortCodeCollision):
 		return errs.NewConflictError("short code already exists")
 	default:
@@ -58,10 +64,13 @@ func mapAppError(err error) *errs.AppError {
 	}
 }
 
-func (b *BaseHandler) writeError(w http.ResponseWriter, r *http.Request, err error) {
+func WriteError(w http.ResponseWriter, r *http.Request, logger *slog.Logger, err error) {
 	appErr := mapAppError(err)
-	requestID := requestIDFromContext(r.Context())
-	b.logger.Error("request failed",
+	requestID := RequestIDFromContext(r.Context())
+	if requestID == "" {
+		requestID = r.Header.Get("X-Request-ID")
+	}
+	logger.Error("request failed",
 		"error", err.Error(),
 		"code", appErr.Code,
 		"status", appErr.StatusCode,
@@ -69,14 +78,18 @@ func (b *BaseHandler) writeError(w http.ResponseWriter, r *http.Request, err err
 		"path", r.URL.Path,
 		"request_id", requestID,
 	)
-	envelope := map[string]any{
-		"error": map[string]string{
-			"code":       appErr.Code,
-			"message":    appErr.Message,
-			"request_id": requestID,
+	envelope := ErrorResponse{
+		Error: ErrorDetail{
+			Code:      appErr.Code,
+			Message:   appErr.Message,
+			RequestID: requestID,
 		},
 	}
 	if writeErr := json.WriteJSON(w, appErr.StatusCode, envelope); writeErr != nil {
-		b.logger.Error("failed to write error response", "error", writeErr)
+		logger.Error("failed to write error response", "error", writeErr)
 	}
+}
+
+func (b *BaseHandler) writeError(w http.ResponseWriter, r *http.Request, err error) {
+	WriteError(w, r, b.logger, err)
 }

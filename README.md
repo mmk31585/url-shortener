@@ -2665,19 +2665,19 @@ feat(handler): add all HTTP handlers for URL CRUD, redirect, and stats
 **Goal:** Route definitions and cross-cutting middleware wired up.
 
 **Tasks:**
-- [ ] `internal/router/router.go` — `NewRouter(svc, logger) *http.ServeMux` with all 8 routes
-- [ ] `internal/middleware/middleware.go` — Three middleware functions:
-  - [ ] **Request ID middleware**: Generate UUID v4, store in context, add `X-Request-ID` header to response
-  - [ ] **Logging middleware**: Log method, path, status, duration, request_id for every request
-  - [ ] **Recovery middleware**: Catch panics, log details, return 500 generic message
-- [ ] Middleware applied in correct order (outer-to-inner)
-- [ ] Wire middleware in `main.go`
+- ✅ `internal/router/router.go` — `NewRouter(svc, logger) *http.ServeMux` with all 8 routes
+- ✅ `internal/middleware/middleware.go` — Three middleware functions:
+  - ✅ **Request ID middleware**: Generate UUID v4, store in context, add `X-Request-ID` header to response
+  - ✅ **Logging middleware**: Log method, path, status, duration, request_id for every request
+  - ✅ **Recovery middleware**: Catch panics, log details, return 500 generic message
+- ✅ Middleware applied in correct order (outer-to-inner)
+- ✅ Wire middleware in `main.go`
 
 **Deliverables:**
-- [ ] All routes bound correctly
-- [ ] Request ID generated per request, propagated through context and responses
-- [ ] Every request logged with metadata
-- [ ] Panics caught and returned as clean 500 responses
+- ✅ All routes bound correctly
+- ✅ Request ID generated per request, propagated through context and responses
+- ✅ Every request logged with metadata
+- ✅ Panics caught and returned as clean 500 responses
 
 **Suggested Commit Messages:**
 ```
@@ -2686,10 +2686,10 @@ feat(router): set up HTTP routes with ServeMux
 ```
 
 **Definition of Done:**
-- [ ] All 8 routes registered
-- [ ] All 3 middleware execute for every request
-- [ ] Logging includes all metadata fields
-- [ ] Panics are caught without crashing the server
+- ✅ All 8 routes registered
+- ✅ All 3 middleware execute for every request
+- ✅ Logging includes all metadata fields
+- ✅ Panics are caught without crashing the server
 
 ---
 
@@ -2698,18 +2698,18 @@ feat(router): set up HTTP routes with ServeMux
 **Goal:** Consistent error wrapping, user-friendly messages, and panic recovery at the top level.
 
 **Tasks:**
-- [ ] `internal/error/error.go` — `AppError` struct with Code, Message, StatusCode
-- [ ] Constructors: `NewValidationError`, `NewNotFoundError`, `NewConflictError`, `NewGoneError`, `NewInternalError`
-- [ ] Ensure all errors use `%w` wrapping at every layer boundary
-- [ ] In handlers, use `errors.Is` to detect sentinel errors
-- [ ] Add top-level `defer/recover` in `main.go` to catch unhandled panics
-- [ ] All `fmt.Fprintln(os.Stderr, ...)` use consistent format
+- ✅ `internal/error/error.go` — `AppError` struct with Code, Message, StatusCode
+- ✅ Constructors: `NewValidationError`, `NewNotFoundError`, `NewConflictError`, `NewGoneError`, `NewInternalError`
+- ✅ Ensure all errors use `%w` wrapping at every layer boundary
+- ✅ In handlers, use `errors.Is` to detect sentinel errors
+- ✅ Add top-level `defer/recover` in `main.go` to catch unhandled panics
+- ✅ All `fmt.Fprintln(os.Stderr, ...)` use consistent format
 
 **Deliverables:**
-- [ ] Error chain preserved across all layers (repository → service → handler → HTTP response)
-- [ ] No raw database errors reach HTTP clients
-- [ ] Panics are caught at the top level and return clean 500 responses
-- [ ] All error messages are user-friendly and include request_id
+- ✅ Error chain preserved across all layers (repository → service → handler → HTTP response)
+- ✅ No raw database errors reach HTTP clients
+- ✅ Panics are caught at the top level and return clean 500 responses
+- ✅ All error messages are user-friendly and include request_id
 
 **Suggested Commit Messages:**
 ```
@@ -2717,10 +2717,10 @@ refactor(errors): add AppError type and consistent error propagation
 ```
 
 **Definition of Done:**
-- [ ] `errors.Is` works across all layers for each sentinel error
-- [ ] No raw errors printed to users
-- [ ] All error responses include request_id
-- [ ] No panics leak to the client
+- ✅ `errors.Is` works across all layers for each sentinel error
+- ✅ No raw errors printed to users
+- ✅ All error responses include request_id
+- ✅ No panics leak to the client
 
 ---
 
@@ -2729,16 +2729,16 @@ refactor(errors): add AppError type and consistent error propagation
 **Goal:** Interactive API documentation.
 
 **Tasks:**
-- [ ] Create `docs/swagger.yaml` with OpenAPI 3.0 specification
-- [ ] Document all 8 endpoints with request/response schemas
-- [ ] Include example request and response bodies for every endpoint
-- [ ] Define shared components for `URL`, `ErrorResponse`, `StatsResponse`
-- [ ] Tag endpoints as `/urls` and `/redirect`
+- ✅ Create `docs/swagger.yaml` with OpenAPI 3.0 specification
+- ✅ Document all 8 endpoints with request/response schemas
+- ✅ Include example request and response bodies for every endpoint
+- ✅ Define shared components for `URL`, `ErrorResponse`, `StatsResponse`
+- ✅ Tag endpoints as `/urls` and `/redirect`
 
 **Deliverables:**
-- [ ] Swagger YAML is valid and parseable
-- [ ] All endpoints documented with examples at every status code
-- [ ] Error responses documented for each endpoint
+- ✅ Swagger YAML is valid and parseable
+- ✅ All endpoints documented with examples at every status code
+- ✅ Error responses documented for each endpoint
 
 **Suggested Commit Messages:**
 ```
@@ -2746,9 +2746,9 @@ docs: add Swagger/OpenAPI API documentation
 ```
 
 **Definition of Done:**
-- [ ] All 8 endpoints documented
-- [ ] YAML is valid
-- [ ] Request/response schemas match actual implementations
+- ✅ All 8 endpoints documented
+- ✅ YAML is valid
+- ✅ Request/response schemas match actual implementations
 
 ---
 
@@ -2757,20 +2757,20 @@ docs: add Swagger/OpenAPI API documentation
 **Goal:** Containerized application ready for deployment.
 
 **Tasks:**
-- [ ] Multi-stage `Dockerfile` (golang:1.22-alpine builder → alpine:3.19 runtime)
-- [ ] `CGO_ENABLED=0`, `ldflags="-s -w"` for small static binary
-- [ ] `docker-compose.yml` with App + PostgreSQL services
-- [ ] `.dockerignore` excluding build artifacts, tests, docs
-- [ ] `HEALTHCHECK` in Dockerfile
-- [ ] Persistent volume for PostgreSQL data
-- [ ] Environment variables set via env vars (not hardcoded)
+- ✅ Multi-stage `Dockerfile` (golang:1.22-alpine builder → alpine:3.19 runtime)
+- ✅ `CGO_ENABLED=0`, `ldflags="-s -w"` for small static binary
+- ✅ `docker-compose.yml` with App + PostgreSQL services
+- ✅ `.dockerignore` excluding build artifacts, tests, docs
+- ✅ `HEALTHCHECK` in Dockerfile
+- ✅ Persistent volume for PostgreSQL data
+- ✅ Environment variables set via env vars (not hardcoded)
 
 **Deliverables:**
-- [ ] Docker image builds successfully
-- [ ] Image is small (< 50MB) and contains only binary + CA certs
-- [ ] `docker-compose up` starts the full stack
-- [ ] Application connects to PostgreSQL through Docker network
-- [ ] Health check works
+- ✅ Docker image builds successfully
+- ✅ Image is small (< 50MB) and contains only binary + CA certs
+- ✅ `docker-compose up` starts the full stack
+- ✅ Application connects to PostgreSQL through Docker network
+- ✅ Health check works
 
 **Suggested Commit Messages:**
 ```
@@ -2778,10 +2778,10 @@ feat(docker): add multi-stage Dockerfile and docker-compose for local dev
 ```
 
 **Definition of Done:**
-- [ ] `docker build -t url-shortener .` succeeds
-- [ ] `docker-compose up` starts both services
-- [ ] Health endpoint responds correctly inside Docker
-- [ ] Data persists across container restarts
+- ✅ `docker build -t url-shortener .` succeeds
+- ✅ `docker-compose up` starts both services
+- ✅ Health endpoint responds correctly inside Docker
+- ✅ Data persists across container restarts
 
 ---
 
