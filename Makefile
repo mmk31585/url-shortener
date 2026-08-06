@@ -1,4 +1,4 @@
-.PHONY: build run test test-unit test-e2e test-all lint swagger tidy clean
+.PHONY: build run test test-unit test-e2e test-all lint fmt vet swagger tidy clean
 
 # Build
 build:
@@ -19,6 +19,17 @@ test-e2e:
 # All tests
 test-all:
 	go test -race -count=1 ./...
+
+# All tests (alias)
+test: test-all
+
+# Format
+fmt:
+	gofmt -s -w .
+
+# Vet
+vet:
+	go vet ./...
 
 # Lint
 lint:

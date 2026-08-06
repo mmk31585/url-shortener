@@ -3,27 +3,32 @@ package logger
 import (
 	"log/slog"
 	"os"
+	"strings"
 )
 
-func New(env string) *slog.Logger {
-	var Handler slog.Handler
+func New(env, level, format string) *slog.Logger {
+	var handler slog.Handler
 
-	switch env {
-	case "production":
-		Handler = slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
-			Level:     slog.LevelInfo,
-			AddSource: true,
-		})
-	case "development":
-		Handler = slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
-			Level:     slog.LevelDebug,
-			AddSource: true,
-		})
-	default:
-		Handler = slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
-			Level:     slog.LevelDebug,
-			AddSource: true,
-		})
+	opts := &slog.HandlerOptions{
+		AddSource: true,
 	}
-	return slog.New(Handler)
+
+	switch strings.ToLower(level) {
+	case "warn":
+		opts.Level = slog.LevelWarn
+	case "error":
+		opts.Level = slog.LevelError
+	case "debug":
+		opts.Level = slog.LevelDebug
+	default:
+		opts.Level = slog.LevelInfo
+	}
+
+	if format == "json" || (format == "" && env == "production") {
+		handler = slog.NewJSONHandler(os.Stdout, opts)
+	} else {
+		handler = slog.NewTextHandler(os.Stdout, opts)
+	}
+
+	return slog.New(handler)
 }

@@ -2,6 +2,7 @@ package domain
 
 import (
 	"errors"
+	"fmt"
 	"testing"
 )
 
@@ -32,6 +33,11 @@ func TestSentinelErrorsWrap(t *testing.T) {
 	}{errors.New("this should not match")}
 	if errors.Is(wrapped, ErrURLNotFound) {
 		t.Error("wrapped non-sentinel should not match ErrURLNotFound")
+	}
+
+	wrappedSentinel := fmt.Errorf("context: %w", ErrURLNotFound)
+	if !errors.Is(wrappedSentinel, ErrURLNotFound) {
+		t.Error("wrapped sentinel should match ErrURLNotFound")
 	}
 }
 

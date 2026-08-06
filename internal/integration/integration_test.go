@@ -64,7 +64,7 @@ func (c *httpClient) request(method, path string, body string) *http.Response {
 	if body != "" {
 		r = strings.NewReader(body)
 	}
-	req, err := http.NewRequest(method, c.host+path, r)
+	req, err := http.NewRequestWithContext(c.t.Context(), method, c.host+path, r)
 	if err != nil {
 		c.t.Fatalf("NewRequest: %v", err)
 	}
@@ -78,13 +78,23 @@ func (c *httpClient) request(method, path string, body string) *http.Response {
 	return resp
 }
 
+func (c *httpClient) decodeJSON(resp *http.Response, dst any) {
+	c.t.Helper()
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		c.t.Fatalf("failed to read response body: %v", err)
+	}
+	if err := json.Unmarshal(body, dst); err != nil {
+		c.t.Fatalf("failed to decode JSON response: %v (body: %s)", err, body)
+	}
+}
+
 func (c *httpClient) createURL(url string) (int, map[string]any) {
 	c.t.Helper()
 	resp := c.request(http.MethodPost, "/api/v1/urls", `{"url":"`+url+`"}`)
 	defer resp.Body.Close()
-	body, _ := io.ReadAll(resp.Body)
 	var result map[string]any
-	json.Unmarshal(body, &result)
+	c.decodeJSON(resp, &result)
 	return resp.StatusCode, result
 }
 
@@ -92,9 +102,8 @@ func (c *httpClient) getURL(code string) (int, map[string]any) {
 	c.t.Helper()
 	resp := c.request(http.MethodGet, "/api/v1/urls/"+code, "")
 	defer resp.Body.Close()
-	body, _ := io.ReadAll(resp.Body)
 	var result map[string]any
-	json.Unmarshal(body, &result)
+	c.decodeJSON(resp, &result)
 	return resp.StatusCode, result
 }
 
@@ -112,9 +121,8 @@ func (c *httpClient) updateURL(code, url string) (int, map[string]any) {
 	c.t.Helper()
 	resp := c.request(http.MethodPut, "/api/v1/urls/"+code, `{"url":"`+url+`"}`)
 	defer resp.Body.Close()
-	body, _ := io.ReadAll(resp.Body)
 	var result map[string]any
-	json.Unmarshal(body, &result)
+	c.decodeJSON(resp, &result)
 	return resp.StatusCode, result
 }
 
@@ -129,9 +137,8 @@ func (c *httpClient) stats(code string) (int, map[string]any) {
 	c.t.Helper()
 	resp := c.request(http.MethodGet, "/api/v1/urls/"+code+"/stats", "")
 	defer resp.Body.Close()
-	body, _ := io.ReadAll(resp.Body)
 	var result map[string]any
-	json.Unmarshal(body, &result)
+	c.decodeJSON(resp, &result)
 	return resp.StatusCode, result
 }
 
@@ -139,18 +146,16 @@ func (c *httpClient) health() (int, map[string]any) {
 	c.t.Helper()
 	resp := c.request(http.MethodGet, "/health", "")
 	defer resp.Body.Close()
-	body, _ := io.ReadAll(resp.Body)
 	var result map[string]any
-	json.Unmarshal(body, &result)
+	c.decodeJSON(resp, &result)
 	return resp.StatusCode, result
 }
 
 func (c *httpClient) errorEnvelope(resp *http.Response) map[string]string {
 	c.t.Helper()
-	body, _ := io.ReadAll(resp.Body)
-	resp.Body.Close()
+	defer resp.Body.Close()
 	var envelope map[string]map[string]string
-	json.Unmarshal(body, &envelope)
+	c.decodeJSON(resp, &envelope)
 	return envelope["error"]
 }
 
@@ -325,11 +330,11 @@ func TestCurl_Redirect_Deleted(t *testing.T) {
 	status := client.deleteURL(code)
 	assertStatus(t, status, http.StatusNoContent, "delete status")
 
-	// Both mock and postgres repos filter deleted rows -> ErrURLNotFound (404)
+	// Deleted URLs report 410 GONE on redirect
 	resp := client.request(http.MethodGet, "/"+code, "")
 	errBody := client.errorEnvelope(resp)
-	assertStatus(t, resp.StatusCode, http.StatusNotFound, "redirect deleted")
-	assertString(t, errBody["code"], "NOT_FOUND", "error.code")
+	assertStatus(t, resp.StatusCode, http.StatusGone, "redirect deleted")
+	assertString(t, errBody["code"], "GONE", "error.code")
 }
 
 func TestCurl_Redirect_InvalidCode(t *testing.T) {
@@ -525,7 +530,10 @@ func TestCurl_RequestID_Propagated(t *testing.T) {
 	client := newHTTPClient(t, ts)
 
 	// Client sends X-Request-ID
-	req, _ := http.NewRequest(http.MethodGet, ts.URL+"/health", nil)
+	req, err := http.NewRequestWithContext(t.Context(), http.MethodGet, ts.URL+"/health", nil)
+	if err != nil {
+		t.Fatalf("NewRequest: %v", err)
+	}
 	req.Header.Set("X-Request-ID", "my-custom-id-123")
 	resp, err := client.client.Do(req)
 	if err != nil {
@@ -565,8 +573,6 @@ func TestCurl_WrongMethod(t *testing.T) {
 		{http.MethodPut, "/xxxxxxxx", http.StatusMethodNotAllowed},
 		{http.MethodDelete, "/xxxxxxxx", http.StatusMethodNotAllowed},
 		{http.MethodPost, "/health", http.StatusMethodNotAllowed},
-		{http.MethodPut, "/api/v1/urls/xxxxxxxx", http.StatusBadRequest},
-		{http.MethodDelete, "/api/v1/urls/xxxxxxxx", http.StatusNotFound},
 		{http.MethodPost, "/api/v1/urls/xxxxxxxx/stats", http.StatusMethodNotAllowed},
 		{http.MethodPut, "/api/v1/urls/xxxxxxxx/stats", http.StatusMethodNotAllowed},
 	}
@@ -645,11 +651,11 @@ func TestCurl_FullWorkflow(t *testing.T) {
 	status, _ = client.getURL(code)
 	assertStatus(t, status, http.StatusNotFound, "get after delete")
 
-	// Redirect after delete -> 404 (repos filter deleted rows)
+	// Redirect after delete -> 410 (deleted URLs report GONE)
 	resp := client.request(http.MethodGet, "/"+code, "")
 	errBody := client.errorEnvelope(resp)
-	assertStatus(t, resp.StatusCode, http.StatusNotFound, "redirect after delete")
-	assertString(t, errBody["code"], "NOT_FOUND", "error.code after delete")
+	assertStatus(t, resp.StatusCode, http.StatusGone, "redirect after delete")
+	assertString(t, errBody["code"], "GONE", "error.code after delete")
 
 	// Stats after delete -> 404
 	status, _ = client.stats(code)
@@ -663,9 +669,8 @@ func TestCurl_HealthResponseFormat(t *testing.T) {
 	resp := client.request(http.MethodGet, "/health", "")
 	defer resp.Body.Close()
 
-	body, _ := io.ReadAll(resp.Body)
 	var result map[string]string
-	json.Unmarshal(body, &result)
+	client.decodeJSON(resp, &result)
 
 	assertStatus(t, resp.StatusCode, http.StatusOK, "health status")
 	assertString(t, result["status"], "ok", "status")

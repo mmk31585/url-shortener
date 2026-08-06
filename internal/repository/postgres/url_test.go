@@ -30,6 +30,9 @@ func newTestDB(t *testing.T) *sql.DB {
 	defer cancel()
 
 	if err := db.PingContext(ctx); err != nil {
+		if os.Getenv("CI") != "" || os.Getenv("GITHUB_ACTIONS") != "" {
+			t.Fatalf("CI: postgres not available: %v", err)
+		}
 		t.Skipf("skipping integration tests: postgres not available: %v", err)
 	}
 
@@ -322,7 +325,7 @@ func TestPostgresURLRepository_Update(t *testing.T) {
 	if updated.ShortCode != created.ShortCode {
 		t.Errorf("ShortCode changed: got %q, want %q", updated.ShortCode, created.ShortCode)
 	}
-	if updated.CreatedAt != created.CreatedAt {
+	if !updated.CreatedAt.Equal(created.CreatedAt) {
 		t.Errorf("CreatedAt changed: got %v, want %v", updated.CreatedAt, created.CreatedAt)
 	}
 	if updated.UpdatedAt.Equal(created.UpdatedAt) {
@@ -436,8 +439,8 @@ func TestPostgresURLRepository_SoftDelete_AlreadyDeleted(t *testing.T) {
 	if err == nil {
 		t.Fatal("expected error when deleting already deleted URL, got nil")
 	}
-	if !errors.Is(err, domain.ErrURLNotFound) {
-		t.Errorf("expected ErrURLNotFound for already deleted URL, got %v", err)
+	if !errors.Is(err, domain.ErrURLAlreadyDeleted) {
+		t.Errorf("expected ErrURLAlreadyDeleted for already deleted URL, got %v", err)
 	}
 }
 

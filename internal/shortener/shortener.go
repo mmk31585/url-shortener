@@ -19,9 +19,13 @@ type RandomShortener struct {
 	alphabet string
 }
 
-func NewRandomShortener() *RandomShortener {
+func NewRandomShortener(length ...int) *RandomShortener {
+	l := ShortCodeLength
+	if len(length) > 0 && length[0] > 0 {
+		l = length[0]
+	}
 	return &RandomShortener{
-		length:   ShortCodeLength,
+		length:   l,
 		alphabet: base62Alphabet,
 	}
 }

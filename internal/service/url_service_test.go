@@ -362,3 +362,22 @@ func TestRedirect_NotFound(t *testing.T) {
 		t.Errorf("expected ErrURLNotFound, got %v", err)
 	}
 }
+
+func TestRedirect_DeletedURL(t *testing.T) {
+	repo := mock.NewURLRepository()
+	svc := NewURLService(repo, newFixedShortener(shortCode1))
+
+	created, err := svc.CreateURL(context.Background(), validURL)
+	if err != nil {
+		t.Fatalf("CreateURL() failed: %v", err)
+	}
+
+	if _, err := svc.DeleteURL(context.Background(), created.ShortCode); err != nil {
+		t.Fatalf("DeleteURL() failed: %v", err)
+	}
+
+	_, err = svc.Redirect(context.Background(), created.ShortCode)
+	if !errors.Is(err, domain.ErrURLAlreadyDeleted) {
+		t.Errorf("expected ErrURLAlreadyDeleted for deleted URL, got %v", err)
+	}
+}

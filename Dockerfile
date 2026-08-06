@@ -2,8 +2,8 @@
 FROM golang:1.26.4 as builder
 WORKDIR /app
 RUN apk add --no-cache ca-certificates git
-RUN go mod download
 COPY go.mod go.sum ./
+RUN go mod download
 COPY . .
 RUN CGO_ENABLED=0 GOOS=linux go build -a -ldflags="-s -w" -installsuffix cgo -o api cmd/api/*.go
 

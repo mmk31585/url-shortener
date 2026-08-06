@@ -78,7 +78,7 @@ func TestLoad_CustomValues(t *testing.T) {
 	os.Setenv("DB_MAX_LIFE_TIME", "10m")
 	os.Setenv("LOG_LEVEL", "debug")
 	os.Setenv("LOG_FORMAT", "json")
-	os.Setenv("SHORTCODE_LENGTH", "12")
+	os.Setenv("SHORTCODE_LENGTH", "8")
 	os.Setenv("MAX_URL_LENGTH", "4096")
 	defer os.Clearenv()
 
@@ -103,8 +103,8 @@ func TestLoad_CustomValues(t *testing.T) {
 	if cfg.LogFormat != "json" {
 		t.Errorf("expected LogFormat=json, got %q", cfg.LogFormat)
 	}
-	if cfg.ShortcodeLength != 12 {
-		t.Errorf("expected ShortcodeLength=12, got %d", cfg.ShortcodeLength)
+	if cfg.ShortcodeLength != 8 {
+		t.Errorf("expected ShortcodeLength=8, got %d", cfg.ShortcodeLength)
 	}
 	if cfg.MaxURL != 4096 {
 		t.Errorf("expected MaxURL=4096, got %d", cfg.MaxURL)
@@ -161,13 +161,13 @@ func TestLoad_InvalidShortcodeLengthTooSmall(t *testing.T) {
 func TestLoad_InvalidShortcodeLengthTooLarge(t *testing.T) {
 	os.Clearenv()
 	os.Setenv("DB_ADDR", "postgres://localhost:5432/test?sslmode=disable")
-	os.Setenv("SHORTCODE_LENGTH", "33")
+	os.Setenv("SHORTCODE_LENGTH", "9")
 	defer os.Clearenv()
 
 	config.ResetForTest()
 	_, err := config.Load()
 	if err == nil {
-		t.Fatal("expected error when SHORTCODE_LENGTH=33, got nil")
+		t.Fatal("expected error when SHORTCODE_LENGTH=9, got nil")
 	}
 }
 
@@ -350,7 +350,7 @@ func TestLoad_DotEnv_ValidFileLoadsValues(t *testing.T) {
 DB_ADDR=postgres://user:pass@localhost:5432/mydb?sslmode=disable
 APP_ENV=staging
 LOG_LEVEL=debug
-SHORTCODE_LENGTH=12
+SHORTCODE_LENGTH=8
 `), 0644)
 	if err != nil {
 		t.Fatalf("failed to create .env file: %v", err)
@@ -375,8 +375,8 @@ SHORTCODE_LENGTH=12
 	if cfg.LogLevel != "debug" {
 		t.Errorf("expected LogLevel=debug from .env, got %q", cfg.LogLevel)
 	}
-	if cfg.ShortcodeLength != 12 {
-		t.Errorf("expected ShortcodeLength=12 from .env, got %d", cfg.ShortcodeLength)
+	if cfg.ShortcodeLength != 8 {
+		t.Errorf("expected ShortcodeLength=8 from .env, got %d", cfg.ShortcodeLength)
 	}
 }
 
@@ -446,6 +446,7 @@ func TestLoad_DotEnv_MissingFileIsIgnored(t *testing.T) {
 	tmpDir := t.TempDir()
 	envFile := filepath.Join(tmpDir, "nonexistent.env")
 
+	os.Clearenv()
 	os.Setenv("DOTENV_PATH", envFile)
 	defer os.Unsetenv("DOTENV_PATH")
 	defer os.Clearenv()

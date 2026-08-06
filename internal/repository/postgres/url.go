@@ -148,7 +148,8 @@ func (r *PostgresURLRepository) Update(ctx context.Context, url *domain.URL) (do
 }
 
 func (r *PostgresURLRepository) SoftDelete(ctx context.Context, code domain.ShortCode) (domain.URL, error) {
-	query := `
+	checkQuery := `SELECT id FROM urls WHERE short_code = $1`
+	updateQuery := `
 	UPDATE urls
 	SET deleted_at = NOW()
 	WHERE short_code = $1 AND deleted_at IS NULL
@@ -157,15 +158,28 @@ func (r *PostgresURLRepository) SoftDelete(ctx context.Context, code domain.Shor
 	ctx, cancel := r.withTimeout(ctx)
 	defer cancel()
 
-	url, err := scanURL(r.db.QueryRowContext(ctx, query, code))
+	var exists bool
+	err := r.db.QueryRowContext(ctx, checkQuery, code).Scan(&exists)
 	if err != nil {
-		return domain.URL{}, fmt.Errorf("repository: failed to soft delete url: %w", notFound(err))
+		if errors.Is(err, sql.ErrNoRows) {
+			return domain.URL{}, fmt.Errorf("repository: failed to soft delete url: %w", domain.ErrURLNotFound)
+		}
+		return domain.URL{}, fmt.Errorf("repository: failed to soft delete url: %w", err)
+	}
+
+	url, err := scanURL(r.db.QueryRowContext(ctx, updateQuery, code))
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return domain.URL{}, fmt.Errorf("repository: failed to soft delete url: %w", domain.ErrURLAlreadyDeleted)
+		}
+		return domain.URL{}, fmt.Errorf("repository: failed to soft delete url: %w", err)
 	}
 	return url, nil
 }
 
 func (r *PostgresURLRepository) IncrementRedirectCount(ctx context.Context, code domain.ShortCode) (domain.URL, error) {
-	query := `
+	checkQuery := `SELECT id FROM urls WHERE short_code = $1`
+	updateQuery := `
 	UPDATE urls
 	SET redirect_count = redirect_count + 1, updated_at = NOW()
 	WHERE short_code = $1 AND deleted_at IS NULL
@@ -174,9 +188,21 @@ func (r *PostgresURLRepository) IncrementRedirectCount(ctx context.Context, code
 	ctx, cancel := r.withTimeout(ctx)
 	defer cancel()
 
-	url, err := scanURL(r.db.QueryRowContext(ctx, query, code))
+	var exists bool
+	err := r.db.QueryRowContext(ctx, checkQuery, code).Scan(&exists)
 	if err != nil {
-		return domain.URL{}, fmt.Errorf("repository: failed to increment redirect count: %w", notFound(err))
+		if errors.Is(err, sql.ErrNoRows) {
+			return domain.URL{}, fmt.Errorf("repository: failed to increment redirect count: %w", domain.ErrURLNotFound)
+		}
+		return domain.URL{}, fmt.Errorf("repository: failed to increment redirect count: %w", err)
+	}
+
+	url, err := scanURL(r.db.QueryRowContext(ctx, updateQuery, code))
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return domain.URL{}, fmt.Errorf("repository: failed to increment redirect count: %w", domain.ErrURLAlreadyDeleted)
+		}
+		return domain.URL{}, fmt.Errorf("repository: failed to increment redirect count: %w", err)
 	}
 	return url, nil
 }

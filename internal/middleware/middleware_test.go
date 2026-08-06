@@ -145,7 +145,7 @@ func TestLogging_LogsRequestMetadata(t *testing.T) {
 
 	w := httptest.NewRecorder()
 	r := httptest.NewRequest(http.MethodPost, "/api/v1/urls", nil)
-	r.Header.Set(requestIDHeader, "req-123")
+	r = r.WithContext(handler.WithRequestID(r.Context(), "req-123"))
 
 	Logging(logger)(next).ServeHTTP(w, r)
 
@@ -227,6 +227,9 @@ func TestRecovery_Returns500(t *testing.T) {
 	body := w.Body.String()
 	if !strings.Contains(body, "INTERNAL_ERROR") {
 		t.Errorf("expected consistent error envelope in body, got %q", body)
+	}
+	if strings.Contains(body, "boom") {
+		t.Error("panic message must not leak to response body")
 	}
 	if !strings.Contains(body, "panic-req") {
 		t.Errorf("expected request_id in error envelope, got %q", body)

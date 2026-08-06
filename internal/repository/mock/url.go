@@ -43,7 +43,7 @@ func (m *URLRepository) Create(ctx context.Context, url *domain.URL) (domain.URL
 	defer m.release()
 
 	for _, u := range m.urls {
-		if u.ShortCode == url.ShortCode {
+		if u.ShortCode == url.ShortCode && u.DeletedAt == nil {
 			return domain.URL{}, domain.ErrShortCodeCollision
 		}
 	}
@@ -131,7 +131,10 @@ func (m *URLRepository) SoftDelete(ctx context.Context, code domain.ShortCode) (
 	defer m.release()
 
 	for _, u := range m.urls {
-		if u.ShortCode == code && u.DeletedAt == nil {
+		if u.ShortCode == code {
+			if u.DeletedAt != nil {
+				return domain.URL{}, domain.ErrURLAlreadyDeleted
+			}
 			now := time.Now().UTC()
 			u.DeletedAt = &now
 			return *u, nil
@@ -147,7 +150,10 @@ func (m *URLRepository) IncrementRedirectCount(ctx context.Context, code domain.
 	defer m.release()
 
 	for _, u := range m.urls {
-		if u.ShortCode == code && u.DeletedAt == nil {
+		if u.ShortCode == code {
+			if u.DeletedAt != nil {
+				return domain.URL{}, domain.ErrURLAlreadyDeleted
+			}
 			u.RedirectCount++
 			u.UpdatedAt = time.Now().UTC()
 			return *u, nil

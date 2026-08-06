@@ -93,6 +93,7 @@ func (b *BaseHandler) Redirect(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Cache-Control", "no-store")
 	w.WriteHeader(http.StatusFound)
 }
+
 // UpdateURL godoc
 // @Summary      Update URL destination
 // @Description  Update the destination URL for an existing shortcode
@@ -127,6 +128,7 @@ func (b *BaseHandler) UpdateURL(w http.ResponseWriter, r *http.Request) {
 		b.logger.Error("failed to write response", "error", err)
 	}
 }
+
 // DeleteURL godoc
 // @Summary      Delete a short URL
 // @Description  Soft-delete a shortened URL (returns 410 on future redirect)
@@ -149,6 +151,7 @@ func (b *BaseHandler) DeleteURL(w http.ResponseWriter, r *http.Request) {
 	}
 	w.WriteHeader(http.StatusNoContent)
 }
+
 // GetStats godoc
 // @Summary      Get redirect statistics
 // @Description  Get redirect count and metadata for a shortened URL

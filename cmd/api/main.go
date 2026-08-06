@@ -11,7 +11,7 @@ package main
 // @license.name  MIT
 // @license.url   https://opensource.org/licenses/MIT
 
-// @host      localhost:8080
+// @host
 // @BasePath  /
 
 // @schemes http https
@@ -45,7 +45,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	logger := logger.New(cfg.AppEnv)
+	logger := logger.New(cfg.AppEnv, cfg.LogLevel, cfg.LogFormat)
 	logger.Info("starting server", "address", cfg.ServerAddress, "env", cfg.AppEnv)
 
 	validator.SetMaxURLLength(cfg.MaxURL)
@@ -58,7 +58,7 @@ func main() {
 	defer store.Close()
 
 	repo := postgres.NewPostgresURLRepository(store.DB())
-	shortener := shortener.NewRandomShortener()
+	shortener := shortener.NewRandomShortener(cfg.ShortcodeLength)
 	srv := service.NewURLService(repo, shortener)
 
 	h := handler.NewBaseHandler(srv, logger, store.DB())
@@ -76,15 +76,25 @@ func main() {
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
 
+	serveErr := make(chan error, 1)
 	go func() {
 		logger.Info("server listening", "address", server.Addr)
 		if err := server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 			logger.Error("server failed", "error", err)
-			stop()
+			serveErr <- err
+			return
 		}
+		serveErr <- nil
 	}()
 
-	<-ctx.Done()
+	var listenErr error
+	select {
+	case <-ctx.Done():
+	case listenErr = <-serveErr:
+		if listenErr != nil {
+			stop()
+		}
+	}
 
 	shutdownCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
@@ -92,4 +102,8 @@ func main() {
 		logger.Error("graceful shutdown failed", "error", err)
 	}
 	logger.Info("server stopped")
+
+	if listenErr != nil {
+		os.Exit(1)
+	}
 }

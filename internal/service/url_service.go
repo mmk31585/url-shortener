@@ -85,9 +85,6 @@ func (s *urlService) DeleteURL(ctx context.Context, code domain.ShortCode) (doma
 	return s.repo.SoftDelete(ctx, code)
 }
 func (s *urlService) Redirect(ctx context.Context, code domain.ShortCode) (string, error) {
-	if _, err := s.findURL(ctx, code); err != nil {
-		return "", err
-	}
 	updated, err := s.repo.IncrementRedirectCount(ctx, code)
 	if err != nil {
 		return "", err

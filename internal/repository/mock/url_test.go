@@ -45,7 +45,10 @@ func TestURLRepository_CreateCollision(t *testing.T) {
 
 func TestURLRepository_GetByShortCode(t *testing.T) {
 	repo := NewURLRepository()
-	created, _ := repo.Create(context.Background(), &domain.URL{ShortCode: "abc11111", OriginalURL: "https://a.com"})
+	created, err := repo.Create(context.Background(), &domain.URL{ShortCode: "abc11111", OriginalURL: "https://a.com"})
+	if err != nil {
+		t.Fatalf("Create() returned error: %v", err)
+	}
 
 	got, err := repo.GetByShortCode(context.Background(), "abc11111")
 	if err != nil {
@@ -66,7 +69,9 @@ func TestURLRepository_GetByShortCodeNotFound(t *testing.T) {
 
 func TestURLRepository_GetByShortCodeExcludesDeleted(t *testing.T) {
 	repo := NewURLRepository()
-	repo.Create(context.Background(), &domain.URL{ShortCode: "abc11111", OriginalURL: "https://a.com"})
+	if _, err := repo.Create(context.Background(), &domain.URL{ShortCode: "abc11111", OriginalURL: "https://a.com"}); err != nil {
+		t.Fatalf("Create() returned error: %v", err)
+	}
 	if _, err := repo.SoftDelete(context.Background(), "abc11111"); err != nil {
 		t.Fatalf("SoftDelete() failed: %v", err)
 	}
@@ -79,7 +84,9 @@ func TestURLRepository_GetByShortCodeExcludesDeleted(t *testing.T) {
 func TestURLRepository_GetAll(t *testing.T) {
 	repo := NewURLRepository()
 	for _, code := range []string{"abc11111", "abc22222"} {
-		repo.Create(context.Background(), &domain.URL{ShortCode: domain.ShortCode(code), OriginalURL: "https://x.com"})
+		if _, err := repo.Create(context.Background(), &domain.URL{ShortCode: domain.ShortCode(code), OriginalURL: "https://x.com"}); err != nil {
+			t.Fatalf("Create() returned error: %v", err)
+		}
 	}
 
 	urls, err := repo.GetAll(context.Background())
@@ -107,9 +114,15 @@ func TestURLRepository_GetAllEmpty(t *testing.T) {
 
 func TestURLRepository_GetAllExcludesDeleted(t *testing.T) {
 	repo := NewURLRepository()
-	repo.Create(context.Background(), &domain.URL{ShortCode: "abc11111", OriginalURL: "https://a.com"})
-	repo.Create(context.Background(), &domain.URL{ShortCode: "abc22222", OriginalURL: "https://b.com"})
-	repo.SoftDelete(context.Background(), "abc11111")
+	if _, err := repo.Create(context.Background(), &domain.URL{ShortCode: "abc11111", OriginalURL: "https://a.com"}); err != nil {
+		t.Fatalf("Create() returned error: %v", err)
+	}
+	if _, err := repo.Create(context.Background(), &domain.URL{ShortCode: "abc22222", OriginalURL: "https://b.com"}); err != nil {
+		t.Fatalf("Create() returned error: %v", err)
+	}
+	if _, err := repo.SoftDelete(context.Background(), "abc11111"); err != nil {
+		t.Fatalf("SoftDelete() returned error: %v", err)
+	}
 
 	urls, err := repo.GetAll(context.Background())
 	if err != nil {
@@ -125,7 +138,9 @@ func TestURLRepository_GetAllExcludesDeleted(t *testing.T) {
 
 func TestURLRepository_GetByOriginalURL(t *testing.T) {
 	repo := NewURLRepository()
-	repo.Create(context.Background(), &domain.URL{ShortCode: "abc11111", OriginalURL: "https://unique.com"})
+	if _, err := repo.Create(context.Background(), &domain.URL{ShortCode: "abc11111", OriginalURL: "https://unique.com"}); err != nil {
+		t.Fatalf("Create() returned error: %v", err)
+	}
 
 	got, err := repo.GetByOriginalURL(context.Background(), "https://unique.com")
 	if err != nil {
@@ -146,7 +161,9 @@ func TestURLRepository_GetByOriginalURLNotFound(t *testing.T) {
 
 func TestURLRepository_Update(t *testing.T) {
 	repo := NewURLRepository()
-	repo.Create(context.Background(), &domain.URL{ShortCode: "abc11111", OriginalURL: "https://old.com"})
+	if _, err := repo.Create(context.Background(), &domain.URL{ShortCode: "abc11111", OriginalURL: "https://old.com"}); err != nil {
+		t.Fatalf("Create() returned error: %v", err)
+	}
 
 	updated, err := repo.Update(context.Background(), &domain.URL{ShortCode: "abc11111", OriginalURL: "https://new.com"})
 	if err != nil {
@@ -167,7 +184,9 @@ func TestURLRepository_UpdateNotFound(t *testing.T) {
 
 func TestURLRepository_SoftDelete(t *testing.T) {
 	repo := NewURLRepository()
-	repo.Create(context.Background(), &domain.URL{ShortCode: "abc11111", OriginalURL: "https://x.com"})
+	if _, err := repo.Create(context.Background(), &domain.URL{ShortCode: "abc11111", OriginalURL: "https://x.com"}); err != nil {
+		t.Fatalf("Create() returned error: %v", err)
+	}
 
 	deleted, err := repo.SoftDelete(context.Background(), "abc11111")
 	if err != nil {
@@ -188,7 +207,9 @@ func TestURLRepository_SoftDeleteNotFound(t *testing.T) {
 
 func TestURLRepository_IncrementRedirectCount(t *testing.T) {
 	repo := NewURLRepository()
-	repo.Create(context.Background(), &domain.URL{ShortCode: "abc11111", OriginalURL: "https://x.com"})
+	if _, err := repo.Create(context.Background(), &domain.URL{ShortCode: "abc11111", OriginalURL: "https://x.com"}); err != nil {
+		t.Fatalf("Create() returned error: %v", err)
+	}
 
 	got, err := repo.IncrementRedirectCount(context.Background(), "abc11111")
 	if err != nil {

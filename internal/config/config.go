@@ -55,8 +55,8 @@ func Load() (*Config, error) {
 			loadErr = fmt.Errorf("config: DB_ADDR is required")
 			return
 		}
-		if shortcodeLength < 1 || shortcodeLength > 32 {
-			loadErr = fmt.Errorf("config: SHORTCODE_LENGTH must be between 1 and 32, got %d", shortcodeLength)
+		if shortcodeLength != 8 {
+			loadErr = fmt.Errorf("config: SHORTCODE_LENGTH must be 8, got %d", shortcodeLength)
 			return
 		}
 		if maxURL < 1 {

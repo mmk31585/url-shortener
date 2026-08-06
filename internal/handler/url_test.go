@@ -94,7 +94,7 @@ func newTestBaseHandler(svc service.URLService, pinger Pinger) *BaseHandler {
 }
 
 func newRequest(method, path string, body io.Reader, withShortCode bool) *http.Request {
-	r := httptest.NewRequest(method, path, body)
+	r := httptest.NewRequestWithContext(context.Background(), method, path, body)
 	if withShortCode {
 		r.SetPathValue("shortcode", testShortCode)
 	}
@@ -624,7 +624,7 @@ func TestRedirect_InvalidShortCode(t *testing.T) {
 // --- shortURL scheme ---
 
 func TestShortURL_HTTPS(t *testing.T) {
-	r := httptest.NewRequest(http.MethodGet, "https://example.com/"+testShortCode, nil)
+	r := httptest.NewRequestWithContext(context.Background(), http.MethodGet, "https://example.com/"+testShortCode, nil)
 	r.TLS = &tls.ConnectionState{}
 	got := shortURL(r, testShortCode)
 	if want := "https://example.com/" + testShortCode; got != want {
@@ -633,7 +633,7 @@ func TestShortURL_HTTPS(t *testing.T) {
 }
 
 func TestShortURL_HTTP(t *testing.T) {
-	r := httptest.NewRequest(http.MethodGet, "http://example.com/"+testShortCode, nil)
+	r := httptest.NewRequestWithContext(context.Background(), http.MethodGet, "http://example.com/"+testShortCode, nil)
 	got := shortURL(r, testShortCode)
 	if want := "http://example.com/" + testShortCode; got != want {
 		t.Errorf("shortURL: got %q, want %q", got, want)
@@ -641,7 +641,7 @@ func TestShortURL_HTTP(t *testing.T) {
 }
 
 func TestShortURL_ForwardedHeaders(t *testing.T) {
-	r := httptest.NewRequest(http.MethodGet, "http://example.com/"+testShortCode, nil)
+	r := httptest.NewRequestWithContext(context.Background(), http.MethodGet, "http://example.com/"+testShortCode, nil)
 	r.Header.Set("X-Forwarded-Proto", "https")
 	r.Header.Set("X-Forwarded-Host", "short.example.com")
 

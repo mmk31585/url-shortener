@@ -27,8 +27,7 @@ func RequestID(next http.Handler) http.Handler {
 
 type statusWriter struct {
 	http.ResponseWriter
-	status  int
-	written int
+	status int
 }
 
 func (w *statusWriter) WriteHeader(status int) {
@@ -40,9 +39,7 @@ func (w *statusWriter) Write(b []byte) (int, error) {
 	if w.status == 0 {
 		w.status = http.StatusOK
 	}
-	n, err := w.ResponseWriter.Write(b)
-	w.written += n
-	return n, err
+	return w.ResponseWriter.Write(b)
 }
 
 func (w *statusWriter) Unwrap() http.ResponseWriter {
@@ -60,7 +57,7 @@ func Logging(logger *slog.Logger) func(http.Handler) http.Handler {
 				"path", r.URL.Path,
 				"status", sw.status,
 				"duration", time.Since(start),
-				"request_id", r.Header.Get(requestIDHeader),
+				"request_id", handler.RequestIDFromContext(r.Context()),
 			)
 		})
 	}
@@ -71,6 +68,9 @@ func Recovery(logger *slog.Logger) func(http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			defer func() {
 				if recovered := recover(); recovered != nil {
+					if recovered == http.ErrAbortHandler {
+						panic(recovered)
+					}
 					logger.Error("panic recovered",
 						"panic", recovered,
 						"stack", string(debug.Stack()),

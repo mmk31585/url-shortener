@@ -16,6 +16,7 @@ import (
 type fakeService struct {
 	createURLFn func(ctx context.Context, url string) (domain.URL, error)
 	getURLFn    func(ctx context.Context, code domain.ShortCode) (domain.URL, error)
+	listURLsFn  func(ctx context.Context) ([]domain.URL, error)
 	updateURLFn func(ctx context.Context, originalURL string, code domain.ShortCode) (domain.URL, error)
 	deleteURLFn func(ctx context.Context, code domain.ShortCode) (domain.URL, error)
 	redirectFn  func(ctx context.Context, code domain.ShortCode) (string, error)
@@ -36,6 +37,9 @@ func (f *fakeService) GetURL(ctx context.Context, code domain.ShortCode) (domain
 }
 
 func (f *fakeService) ListURLs(ctx context.Context) ([]domain.URL, error) {
+	if f.listURLsFn != nil {
+		return f.listURLsFn(ctx)
+	}
 	return []domain.URL{}, nil
 }
 

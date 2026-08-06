@@ -13,6 +13,11 @@ func New(addr string,
 	maxIdleConns int,
 	maxIdleTime string) (*sql.DB, error) {
 
+	duration, err := time.ParseDuration(maxIdleTime)
+	if err != nil {
+		return nil, err
+	}
+
 	db, err := sql.Open("pgx", addr)
 	if err != nil {
 		return nil, err
@@ -28,11 +33,6 @@ func New(addr string,
 
 	db.SetMaxOpenConns(maxOpenConns)
 	db.SetMaxIdleConns(maxIdleConns)
-
-	duration, err := time.ParseDuration(maxIdleTime)
-	if err != nil {
-		return nil, err
-	}
 	db.SetConnMaxIdleTime(duration)
 
 	return db, nil
