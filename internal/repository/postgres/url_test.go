@@ -5,12 +5,14 @@ import (
 	"database/sql"
 	"errors"
 	"os"
+	"path/filepath"
 	"testing"
 	"time"
 
 	_ "github.com/jackc/pgx/v5/stdlib"
 
 	"github.com/mmk31585/url-shortener/internal/domain"
+	"github.com/pressly/goose"
 )
 
 func newTestDB(t *testing.T) *sql.DB {
@@ -36,8 +38,36 @@ func newTestDB(t *testing.T) *sql.DB {
 		t.Skipf("skipping integration tests: postgres not available: %v", err)
 	}
 
+	migrateDB(t, db)
+
 	t.Cleanup(func() { db.Close() })
 	return db
+}
+
+func migrateDB(t *testing.T, db *sql.DB) {
+	t.Helper()
+	dir := moduleRoot(t)
+	if err := goose.Up(db, filepath.Join(dir, "migrations")); err != nil {
+		t.Fatalf("failed to apply migrations: %v", err)
+	}
+}
+
+func moduleRoot(t *testing.T) string {
+	t.Helper()
+	dir, err := os.Getwd()
+	if err != nil {
+		t.Fatalf("getwd: %v", err)
+	}
+	for {
+		if _, err := os.Stat(filepath.Join(dir, "go.mod")); err == nil {
+			return dir
+		}
+		parent := filepath.Dir(dir)
+		if parent == dir {
+			t.Fatalf("module root not found from %s", dir)
+		}
+		dir = parent
+	}
 }
 
 func cleanTable(t *testing.T, db *sql.DB) {
