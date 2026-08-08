@@ -304,3 +304,8 @@ Use [Conventional Commits](https://www.conventionalcommits.org/) (e.g. `feat:`, 
 - **Parameterized SQL everywhere** — no string interpolation, no SQL injection surface.
 - **Full URLs are never logged** — query strings may contain tokens or PII; only metadata and error codes are logged.
 - **Stateless service** — all state lives in PostgreSQL, so the API scales horizontally behind a load balancer without sticky sessions.
+
+
+## roadmap idea project 
+
+https://roadmap.sh/projects/url-shortening-service
