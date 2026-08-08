@@ -1,4 +1,4 @@
-.PHONY: build run test test-unit test-e2e test-all lint fmt vet swagger tidy clean
+.PHONY: build run test test-unit test-e2e test-all lint fmt vet swagger tidy clean coverage check
 
 # Build
 build:
@@ -17,8 +17,7 @@ test-e2e:
 	go test -race -count=1 -tags=e2e ./internal/integration/ -v
 
 # All tests
-test-all:
-	go test -race -count=1 ./...
+test-all: test-unit test-e2e
 
 # All tests (alias)
 test: test-all
