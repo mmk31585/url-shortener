@@ -1,0 +1,275 @@
+basePath: /
+definitions:
+  internal_handler.CreateURLPayload:
+    properties:
+      url:
+        type: string
+    required:
+    - url
+    type: object
+  internal_handler.ErrorDetail:
+    properties:
+      code:
+        type: string
+      message:
+        type: string
+      request_id:
+        type: string
+    type: object
+  internal_handler.ErrorResponse:
+    properties:
+      error:
+        $ref: '#/definitions/internal_handler.ErrorDetail'
+    type: object
+  internal_handler.HealthResponse:
+    properties:
+      database:
+        type: string
+      status:
+        type: string
+      timestamp:
+        type: string
+    type: object
+  internal_handler.StatsResponse:
+    properties:
+      created_at:
+        type: string
+      redirect_count:
+        type: integer
+      short_code:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  internal_handler.URLResponse:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: integer
+      original_url:
+        type: string
+      redirect_count:
+        type: integer
+      short_code:
+        type: string
+      short_url:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  internal_handler.UpdateURLPayload:
+    properties:
+      url:
+        type: string
+    required:
+    - url
+    type: object
+info:
+  contact:
+    email: support@example.com
+    name: API Support
+  description: A high-performance URL shortener service with statistics tracking
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  termsOfService: http://swagger.io/terms/
+  title: URL Shortener API
+  version: "1.0"
+paths:
+  /{shortcode}:
+    get:
+      description: Redirect to the original URL and increment redirect count
+      parameters:
+      - description: 8-character shortcode
+        in: path
+        name: shortcode
+        required: true
+        type: string
+      responses:
+        "302":
+          description: Redirect to original URL
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_handler.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/internal_handler.ErrorResponse'
+        "410":
+          description: Gone
+          schema:
+            $ref: '#/definitions/internal_handler.ErrorResponse'
+      summary: Redirect to original URL
+      tags:
+      - redirect
+  /api/v1/urls:
+    post:
+      consumes:
+      - application/json
+      description: Create a new shortened URL from a long URL
+      parameters:
+      - description: URL to shorten
+        in: body
+        name: url
+        required: true
+        schema:
+          $ref: '#/definitions/internal_handler.CreateURLPayload'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/internal_handler.URLResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_handler.ErrorResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/internal_handler.ErrorResponse'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/internal_handler.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_handler.ErrorResponse'
+      summary: Create a new short URL
+      tags:
+      - urls
+  /api/v1/urls/{shortcode}:
+    delete:
+      description: Soft-delete a shortened URL (returns 410 on future redirect)
+      parameters:
+      - description: 8-character shortcode
+        in: path
+        name: shortcode
+        required: true
+        type: string
+      responses:
+        "204":
+          description: URL deleted
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_handler.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/internal_handler.ErrorResponse'
+      summary: Delete a short URL
+      tags:
+      - urls
+    get:
+      description: Retrieve details about a shortened URL
+      parameters:
+      - description: 8-character shortcode
+        in: path
+        name: shortcode
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_handler.URLResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_handler.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/internal_handler.ErrorResponse'
+      summary: Get URL info by shortcode
+      tags:
+      - urls
+    put:
+      consumes:
+      - application/json
+      description: Update the destination URL for an existing shortcode
+      parameters:
+      - description: 8-character shortcode
+        in: path
+        name: shortcode
+        required: true
+        type: string
+      - description: New destination URL
+        in: body
+        name: url
+        required: true
+        schema:
+          $ref: '#/definitions/internal_handler.UpdateURLPayload'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_handler.URLResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_handler.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/internal_handler.ErrorResponse'
+      summary: Update URL destination
+      tags:
+      - urls
+  /api/v1/urls/{shortcode}/stats:
+    get:
+      description: Get redirect count and metadata for a shortened URL
+      parameters:
+      - description: 8-character shortcode
+        in: path
+        name: shortcode
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_handler.StatsResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_handler.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/internal_handler.ErrorResponse'
+      summary: Get redirect statistics
+      tags:
+      - urls
+  /health:
+    get:
+      description: Check server and database connectivity
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_handler.HealthResponse'
+        "503":
+          description: Service Unavailable
+          schema:
+            $ref: '#/definitions/internal_handler.ErrorResponse'
+      summary: Health check
+      tags:
+      - health
+schemes:
+- http
+- https
+swagger: "2.0"

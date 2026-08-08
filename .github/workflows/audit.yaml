@@ -1,0 +1,52 @@
+name: Audit
+
+on:
+  push:
+    branches: [main,develop]
+  pull_request:
+    branches: [main,develop]
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_DB: urlshortener
+          POSTGRES_USER: admin
+          POSTGRES_PASSWORD: admin
+        ports:
+          - 5430:5432
+        options: >-
+          --health-cmd "pg_isready -U admin -d urlshortener"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: 1.26.4
+
+      - name: Verify Depedencies
+        run: go mod verify
+
+      - name: Build
+        run: go build -v ./...
+
+      - name: Run go vet
+        run: go vet ./...
+
+      - name: Install staticcheck
+        run: go install honnef.co/go/tools/cmd/staticcheck@latest
+
+      - name: Run staticcheck
+        run: staticcheck ./...
+
+      - name: Run Tests
+        env:
+          DB_ADDR: postgres://admin:admin@localhost:5430/urlshortener?sslmode=disable
+        run: go test -race ./...
